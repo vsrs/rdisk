@@ -1,0 +1,12 @@
+[package]
+name = "rdisk"
+version = "0.1.0"
+authors = ["vsrs <vit@conrlab.com>"]
+edition = "2018"
+keywords = ["disk", "mbr", "gpt", "NTFS", "FAT"]
+categories = ["no-std"]
+license = "MIT/Apache-2.0"
+repository = "https://github.com/vsrs/rdisk"
+description = "rdisk is a native Rust library to work with different disk image formats (VHD, VHDX, VMDK, etc), file systems (FAT, NTFS) and other low level disk formats."
+
+[dependencies]
