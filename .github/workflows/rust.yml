@@ -1,0 +1,42 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build no_std
+      uses: actions-rs/cargo@v1.0.1
+      with:
+        command: build
+        args: --verbose --features "user" --no-default-features
+
+    - name: Build
+      uses: actions-rs/cargo@v1.0.1
+      with:
+        command: build
+        args: --verbose
+
+    - name: Run tests
+      env:
+        NT_NATIVE_TEST_DIR: .
+      uses: actions-rs/cargo@v1.0.1
+      with:
+        command: test
+        args: --verbose -- --nocapture --test-threads=1
+
+    - name: Run tests in release mode
+      env:
+        NT_NATIVE_TEST_DIR: .
+      uses: actions-rs/cargo@v1.0.1
+      with:
+        command: test
+        args: --release --verbose -- --nocapture --test-threads=1
