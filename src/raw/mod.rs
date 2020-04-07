@@ -1,6 +1,7 @@
-use crate::prelude::*;
+use crate::*;
 
-#[derive(Debug)]
+#[derive(Clone)]
+#[cfg_attr(any(feature = "std", test), derive(Debug))]
 pub struct RawDiskImage {
     file: File, // TODO: replace with transport
     capacity: u64,

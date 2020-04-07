@@ -3,7 +3,8 @@ use nt_native::NtString;
 
 type NtFile = nt_native::File;
 
-#[derive(Debug)]
+#[derive(Clone)]
+#[cfg_attr(any(feature = "std", test), derive(Debug))]
 pub struct File(NtFile);
 
 impl ReadAt for File {

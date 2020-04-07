@@ -1,5 +1,5 @@
-use crate::prelude::*;
-use crate::{crc, math, mbr::MasterBootRecord, tools};
+use crate::*;
+use crate::mbr::MasterBootRecord;
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
