@@ -23,22 +23,25 @@ impl<D: Disk> PartitionedDisk<D> {
     }
 
     pub fn partitions(&self) -> Partitions<'_, D> {
-        Partitions { disk: &self, iter: self.layout.partitions() }
+        Partitions {
+            disk: &self,
+            iter: self.layout.partitions(),
+        }
     }
 }
 
 pub struct Partitions<'d, D: Disk + 'd> {
     disk: &'d PartitionedDisk<D>,
-    iter: DiskLayoutParts<'d>
+    iter: DiskLayoutParts<'d>,
 }
 
 impl<'d, D: Disk + 'd> core::iter::Iterator for Partitions<'d, D> {
     type Item = Partition<'d, D>;
 
     fn next(&mut self) -> core::option::Option<Self::Item> {
-        self.iter.next().map(|info|{
-            Partition::new(&self.disk.raw_disk, info)
-        })
+        self.iter
+            .next()
+            .map(|info| Partition::new(&self.disk.raw_disk, info))
     }
 }
 

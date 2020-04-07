@@ -18,14 +18,14 @@ impl WriteAt for RawDiskImage {
     fn write_at(&self, offset: u64, data: &[u8]) -> Result<usize> {
         let _ = offset;
         let _ = data;
-        
+
         todo!()
     }
 }
 
 impl Disk for RawDiskImage {
-    fn geometry(&self) -> Result<&Geometry>{
-        Ok(&self.geometry)
+    fn geometry(&self) -> Result<Geometry> {
+        Ok(self.geometry)
     }
 
     fn capacity(&self) -> Result<u64> {
@@ -34,20 +34,20 @@ impl Disk for RawDiskImage {
 
     fn physical_sector_size(&self) -> Result<u32> {
         Ok(self.geometry.bytes_per_sector)
-     }
+    }
 }
 
 impl DiskImage for RawDiskImage {
     const NAME: &'static str = "RAW";
     const EXT: &'static [&'static str] = &["dd", "img", "bin"];
-    
-    fn backing_files(&self) -> Box<dyn core::iter::Iterator<Item=String>> {
+
+    fn backing_files(&self) -> Box<dyn core::iter::Iterator<Item = String>> {
         Box::new(core::iter::once(self.file_path.clone()))
     }
 
     fn storage_size(&self) -> Result<u64> {
         Ok(self.capacity)
-    }    
+    }
 }
 
 impl RawDiskImage {

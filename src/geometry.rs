@@ -109,33 +109,32 @@ impl Geometry {
 
     /// Tries to get the disk geometry from MBR
     pub fn detect(disk: &impl Disk) -> crate::Result<Option<Self>> {
-        tools::read_disk_struct(disk, 0)
-            .and_then(|header: mbr::MasterBootRecord| {
-                if header.is_valid() {
-                    let mut max_head = 0_u32;
-                    let mut max_sector = 0_u32;
-                    for p in &header.partition_table {
-                        max_head = core::cmp::max(max_head, p.end_head as u32);
-                        max_sector = core::cmp::max(max_sector, p.end_sector as u32);
-                    }
-
-                    if max_head != 0 && max_sector != 0 {
-                        max_head += 1;
-                        let sector_size = disk.logical_sector_size()?;
-                        let cylinder_size = max_head * max_sector * sector_size;
-                        let cylinders = math::ceil(disk.capacity()?, cylinder_size as u64);
-
-                        return Ok(Some(Geometry {
-                            cylinders: cylinders as u64,
-                            heads_per_cylinder: max_head,
-                            sectors_per_track: max_sector,
-                            bytes_per_sector: sector_size,
-                        }));
-                    }
+        tools::read_disk_struct(disk, 0).and_then(|header: mbr::MasterBootRecord| {
+            if header.is_valid() {
+                let mut max_head = 0_u32;
+                let mut max_sector = 0_u32;
+                for p in &header.partition_table {
+                    max_head = core::cmp::max(max_head, p.end_head as u32);
+                    max_sector = core::cmp::max(max_sector, p.end_sector as u32);
                 }
 
-                Ok(None)
-            })
+                if max_head != 0 && max_sector != 0 {
+                    max_head += 1;
+                    let sector_size = disk.logical_sector_size()?;
+                    let cylinder_size = max_head * max_sector * sector_size;
+                    let cylinders = math::ceil(disk.capacity()?, cylinder_size as u64);
+
+                    return Ok(Some(Geometry {
+                        cylinders: cylinders as u64,
+                        heads_per_cylinder: max_head,
+                        sectors_per_track: max_sector,
+                        bytes_per_sector: sector_size,
+                    }));
+                }
+            }
+
+            Ok(None)
+        })
     }
 }
 

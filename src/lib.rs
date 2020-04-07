@@ -45,11 +45,11 @@ mod partitioned_disk;
 pub use partitioned_disk::*;
 
 pub(crate) mod platform;
-pub use platform::{PhysicalDisk, File};
+pub use platform::{File, PhysicalDisk};
 
 pub mod prelude {
     pub use super::Uuid;
-    pub use super::{Disk, DiskImage, Error, Geometry, ReadAt, Result, WriteAt, File};
+    pub use super::{Disk, DiskImage, Error, File, Geometry, ReadAt, Result, WriteAt};
     // pub use super::{PartitionedDisk, Partition, PartitionKind, PartitionInfo};
 }
 

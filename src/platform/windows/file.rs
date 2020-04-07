@@ -1,4 +1,4 @@
-use crate::{Result, ReadAt, WriteAt};
+use crate::{ReadAt, Result, WriteAt};
 use nt_native::NtString;
 
 type NtFile = nt_native::File;

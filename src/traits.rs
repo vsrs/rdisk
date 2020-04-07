@@ -35,7 +35,7 @@ pub trait WriteAt {
                 Ok(n) => {
                     data = &data[n..];
                     offset += n as u64;
-                },
+                }
                 Err(e) => return Err(e),
             }
         }
@@ -44,7 +44,7 @@ pub trait WriteAt {
 }
 
 pub trait Disk: ReadAt + WriteAt {
-    fn geometry(&self) -> Result<&Geometry>;
+    fn geometry(&self) -> Result<Geometry>;
     fn capacity(&self) -> Result<u64>;
     fn physical_sector_size(&self) -> Result<u32>;
 
