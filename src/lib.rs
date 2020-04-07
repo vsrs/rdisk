@@ -1,7 +1,76 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+#![cfg_attr(not(feature = "std"), no_std)]
+
+pub(crate) use rdisk_shared::*;
+
+#[macro_use]
+extern crate num_derive;
+
+mod error;
+pub use error::*;
+pub type Result<T> = core::result::Result<T, Error>;
+
+// reexport
+pub use uuid::Uuid;
+
+pub mod sizes {
+    pub const SECTOR: u32 = 512;
+    pub const SECTOR_U64: u64 = SECTOR as u64;
+    pub const KIB: u64 = 1024;
+    pub const MIB: u64 = 1024 * KIB;
+    pub const GIB: u64 = 1024 * MIB;
+}
+
+pub mod crc;
+pub mod gpt;
+pub mod math;
+pub mod mbr;
+pub mod raw;
+
+mod device_info;
+pub use device_info::*;
+
+mod geometry;
+pub use geometry::Geometry;
+
+mod traits;
+pub use traits::*;
+
+mod disk_layout;
+pub use disk_layout::*;
+
+mod partition;
+pub use partition::*;
+
+mod partitioned_disk;
+pub use partitioned_disk::*;
+
+pub(crate) mod platform;
+pub use platform::{PhysicalDisk, File};
+
+pub mod prelude {
+    pub use super::Uuid;
+    pub use super::{Disk, DiskImage, Error, Geometry, ReadAt, Result, WriteAt, File};
+    // pub use super::{PartitionedDisk, Partition, PartitionKind, PartitionInfo};
+}
+
+pub(crate) mod tools {
+    use super::*;
+
+    pub(crate) fn read_disk_struct<T, D>(disk: &D, offset: u64) -> Result<T>
+    where
+        T: Sized,
+        D: Disk,
+    {
+        debug_assert_eq!(core::mem::align_of::<T>(), 1);
+
+        unsafe {
+            let sector_size = disk.logical_sector_size()? as usize;
+            debug_assert!(sector_size >= core::mem::size_of::<T>());
+
+            let mut buffer = alloc_buffer(sector_size);
+            disk.read_exact_at(offset, buffer.as_mut_slice())?;
+
+            Ok(core::ptr::read(buffer.as_ptr() as *const T))
+        }
     }
 }

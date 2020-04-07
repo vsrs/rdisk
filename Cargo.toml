@@ -9,4 +9,18 @@ license = "MIT/Apache-2.0"
 repository = "https://github.com/vsrs/rdisk"
 description = "rdisk is a native Rust library to work with different disk image formats (VHD, VHDX, VMDK, etc), file systems (FAT, NTFS) and other low level disk formats."
 
+[features]
+default = ["std"]
+std = ["uuid/std", "nt_native/std", "rdisk_shared/std"]
+kernel = ["nt_native/kernel"]
+user = ["nt_native/user"]
+
 [dependencies]
+cfg-if = "0.1"
+uuid = { version = "0.8", default-features = false, features = ["v4"] }
+num-traits = { version = "0.2", default-features = false }
+num-derive = { version = "0.3", default-features = false }
+rdisk_shared = { git="https://github.com/vsrs/rdisk_shared", default-features = false }
+
+[target.'cfg(windows)'.dependencies]
+nt_native = { git="https://github.com/vsrs/nt_native", default-features = false }

@@ -1,0 +1,111 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "enum_disks",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\target\\debug\\examples\\enum_disks.exe",
+            "args": [""],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [ {"name": "RUST_BACKTRACE", "value": "1"} ],
+            "externalConsole": false,
+            "preLaunchTask": "${defaultBuildTask}",
+            "internalConsoleOptions": "openOnSessionStart",
+            "logging": {
+                "moduleLoad": false,
+            },
+            "sourceFileMap": {
+                "/rustc/f3e1a954d2ead4e2fc197c7da7d71e6c61bad196": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+              },
+        },
+        {
+            "name": "unit tests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\target\\debug\\rdisk-9cda6e00bbdde439.exe",
+            "args": ["--test-threads=1"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [ {"name": "RUST_BACKTRACE", "value": "1"} ],
+            "externalConsole": false,
+            "preLaunchTask": "${defaultBuildTask}",
+            "internalConsoleOptions": "openOnSessionStart",
+            "logging": {
+                "moduleLoad": false,
+            },
+            "sourceFileMap": {
+                "/rustc/f3e1a954d2ead4e2fc197c7da7d71e6c61bad196": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+              },
+        },
+        {
+            "name": "extended partition test",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\target\\debug\\extended_partition-26f9a857d7413877.exe",
+            "args": ["--test-threads=1", "--nocapture"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {"name": "RUST_BACKTRACE", "value": "1"},
+                {"name": "CARGO_MANIFEST_DIR", "value": "${workspaceFolder}"}
+            ],
+            "externalConsole": false,
+            "preLaunchTask": "${defaultBuildTask}",
+            "internalConsoleOptions": "openOnSessionStart",
+            "logging": {
+                "moduleLoad": false,
+            },
+            "sourceFileMap": {
+                "/rustc/f3e1a954d2ead4e2fc197c7da7d71e6c61bad196": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+              },
+        },
+        {
+            "name": "VHD tests",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\target\\debug\\vhd-60e6f93922d72c32.exe",
+            "args": ["--test-threads=1", "--nocapture"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {"name": "RUST_BACKTRACE", "value": "1"},
+                {"name": "CARGO_MANIFEST_DIR", "value": "${workspaceFolder}"}
+            ],
+            "externalConsole": false,
+            "preLaunchTask": "${defaultBuildTask}",
+            "internalConsoleOptions": "openOnSessionStart",
+            "logging": {
+                "moduleLoad": false,
+            },
+            "sourceFileMap": {
+                "/rustc/f3e1a954d2ead4e2fc197c7da7d71e6c61bad196": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+              },
+        },        
+        {
+            "name": "dump_disk",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\target\\debug\\examples\\dump_disk.exe",
+            "args": ["E:\\Projects\\Rust\\disk_related\\images\\vhd\\xapi.vhd"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {"name": "RUST_BACKTRACE", "value": "1"},
+            ],
+            "externalConsole": false,
+            "preLaunchTask": "${defaultBuildTask}",
+            "internalConsoleOptions": "openOnSessionStart",
+            "logging": {
+                "moduleLoad": false,
+            },
+            "sourceFileMap": {
+                "/rustc/f3e1a954d2ead4e2fc197c7da7d71e6c61bad196": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+              },
+        }
+    ]
+}
