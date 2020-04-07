@@ -49,14 +49,19 @@ fn extended_partition() {
 
     if let Ok(path) = std::env::var("CARGO_MANIFEST_DIR") {
         let path = std::path::PathBuf::from(path).join("testdata\\ext-part-test-2.dd");
-        let image = raw::RawDiskImage::open(&path.to_string_lossy().to_string()).unwrap();
-        dump_image_info(&image);
-
-        let layout = DiskLayout::read(&image).unwrap();
-        dump_layout(&layout);
-
-        for area in layout.partitions() {
-            println!("@{} : {}", area.offset / 512, area.length / 512);
+        if path.exists() {
+            let image = raw::RawDiskImage::open(&path.to_string_lossy().to_string()).unwrap();
+            dump_image_info(&image);
+    
+            let layout = DiskLayout::read(&image).unwrap();
+            dump_layout(&layout);
+    
+            for area in layout.partitions() {
+                println!("@{} : {}", area.offset / 512, area.length / 512);
+            }
+        }
+        else {
+            print!("No test data, skipped ... ")
         }
     }
 
