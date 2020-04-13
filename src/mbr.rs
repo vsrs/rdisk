@@ -1,4 +1,4 @@
-use crate::*;
+use crate::prelude::*;
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, Hash, FromPrimitive, ToPrimitive)]

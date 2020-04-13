@@ -1,4 +1,5 @@
-use crate::{Disk, Geometry, ReadAt, Result, StorageDeviceInfo, WriteAt};
+use crate::prelude::*;
+use crate::StorageDeviceInfo;
 use nt_native::NtString;
 
 #[derive(Clone)]
@@ -36,7 +37,7 @@ impl Disk for PhysicalDisk {
 
 impl PhysicalDisk {
     pub fn open(index: u32) -> Result<Self> {
-        let name = crate::format!("\\\\.\\PhysicalDrive{}", index);
+        let name = format!("\\\\.\\PhysicalDrive{}", index);
         Self::open_by_name(name.as_str())
     }
 

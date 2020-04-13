@@ -52,6 +52,8 @@ pub mod prelude {
     pub use super::Uuid;
     pub use super::{Disk, DiskImage, ImageExtent, Error, File, Geometry, ReadAt, Result, WriteAt};
     pub use super::{PartitionedDisk, Partition, PartitionKind, PartitionInfo};
+    pub(crate) use rdisk_shared::xstd::*;
+    pub(crate) use crate::{crc, math, tools};
 }
 
 pub(crate) mod tools {

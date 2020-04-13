@@ -1,4 +1,4 @@
-use crate::String;
+use crate::xstd::String;
 
 #[derive(Debug)]
 pub enum Error {
