@@ -20,7 +20,7 @@ cfg-if = "0.1"
 uuid = { version = "0.8", default-features = false, features = ["v4"] }
 num-traits = { version = "0.2", default-features = false }
 num-derive = { version = "0.3", default-features = false }
-rdisk_shared = { git="https://github.com/vsrs/rdisk_shared", default-features = false }
+rdisk_shared = { version="^0.1", default-features = false }
 
 [target.'cfg(windows)'.dependencies]
-nt_native = { git="https://github.com/vsrs/nt_native", default-features = false }
+nt_native = { version="^0.1", default-features = false }
