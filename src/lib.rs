@@ -25,6 +25,7 @@ pub mod gpt;
 pub mod math;
 pub mod mbr;
 pub mod raw;
+pub mod vhd;
 
 mod device_info;
 pub use device_info::*;
@@ -49,8 +50,8 @@ pub use platform::{File, PhysicalDisk};
 
 pub mod prelude {
     pub use super::Uuid;
-    pub use super::{Disk, DiskImage, Error, File, Geometry, ReadAt, Result, WriteAt};
-    // pub use super::{PartitionedDisk, Partition, PartitionKind, PartitionInfo};
+    pub use super::{Disk, DiskImage, ImageExtent, Error, File, Geometry, ReadAt, Result, WriteAt};
+    pub use super::{PartitionedDisk, Partition, PartitionKind, PartitionInfo};
 }
 
 pub(crate) mod tools {

@@ -13,7 +13,7 @@ pub enum Error {
     NotFound(String),
 
     Platform(crate::platform::Error),
-    // Vhd(crate::vhd::VhdError),
+    Vhd(crate::vhd::VhdError),
 }
 
 impl core::fmt::Display for Error {
@@ -28,7 +28,7 @@ impl core::fmt::Display for Error {
             Error::WriteZero => write!(f, "Failed to write whole buffer"),
             Error::NotFound(ref s) => write!(f, "'{}' not found", s),
             Error::Platform(ref e) => e.fmt(f),
-            // Error::Vhd(ref e) => e.fmt(f),
+            Error::Vhd(ref e) => e.fmt(f),
         }
     }
 }

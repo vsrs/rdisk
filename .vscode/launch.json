@@ -68,7 +68,7 @@
             "name": "VHD tests",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\target\\debug\\vhd-60e6f93922d72c32.exe",
+            "program": "${workspaceFolder}\\target\\debug\\vhd-9090559cb3eac0ec.exe",
             "args": ["--test-threads=1", "--nocapture"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
