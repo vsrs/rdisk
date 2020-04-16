@@ -22,9 +22,7 @@ impl WriteAt for File {
 impl File {
     pub fn open(path: &str) -> Result<Self> {
         let nt_path = NtString::from(path);
-        NtFile::open(&nt_path)
-            .map(|nt_file| File(nt_file))
-            .map_err(From::from)
+        NtFile::open(&nt_path).map(|nt_file| File(nt_file)).map_err(From::from)
     }
 
     pub fn create_preallocated(path: &str, size: u64) -> Result<Self> {

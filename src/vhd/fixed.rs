@@ -10,7 +10,7 @@ pub struct FixedExtent {
 
 macro_rules! debug_check {
     ($s:ident, $offset:ident, $data:ident) => {
-        debug_assert!( ($offset + $data.len() as u64) <= $s.file.size().unwrap() - crate::sizes::SECTOR_U64);
+        debug_assert!(($offset + $data.len() as u64) <= $s.file.size().unwrap() - crate::sizes::SECTOR_U64);
     };
 }
 

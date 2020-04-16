@@ -50,16 +50,16 @@ pub use platform::{File, PhysicalDisk};
 
 pub mod prelude {
     pub use super::Uuid;
-    pub use super::{Disk, DiskImage, ImageExtent, Error, File, Geometry, ReadAt, Result, WriteAt};
-    pub use super::{PartitionedDisk, Partition, PartitionKind, PartitionInfo};
-    pub(crate) use rdisk_shared::xstd::*;
+    pub use super::{Disk, DiskImage, Error, File, Geometry, ImageExtent, ReadAt, Result, WriteAt};
+    pub use super::{Partition, PartitionInfo, PartitionKind, PartitionedDisk};
     pub(crate) use crate::{crc, math, tools};
+    pub(crate) use rdisk_shared::xstd::*;
 }
 
 pub(crate) mod tools {
-    use super::*;
+    pub use super::*;
 
-    pub(crate) fn read_disk_struct<T, D>(disk: &D, offset: u64) -> Result<T>
+    pub fn read_disk_struct<T, D>(disk: &D, offset: u64) -> Result<T>
     where
         T: Sized,
         D: Disk,

@@ -86,10 +86,7 @@ impl DiskLayout {
     }
 
     pub fn partitions(&self) -> DiskLayoutParts<'_> {
-        DiskLayoutParts {
-            layout: self,
-            index: 0,
-        }
+        DiskLayoutParts { layout: self, index: 0 }
     }
 }
 

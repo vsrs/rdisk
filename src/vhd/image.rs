@@ -51,7 +51,7 @@ impl DiskImage for VhdImage {
     }
 }
 
-const MAX_VHD_SIZE : u64 = 2040 * sizes::GIB;
+const MAX_VHD_SIZE: u64 = 2040 * sizes::GIB;
 
 impl VhdImage {
     pub fn create_fixed<S: Into<String>>(path: S, size: u64) -> Result<Self> {
@@ -62,10 +62,10 @@ impl VhdImage {
         let path = path.into();
         let file = File::create_preallocated(&path, size + sizes::SECTOR_U64)?;
         let footer = Footer::new(size, VhdKind::Fixed);
-        let extent : Box<dyn VhdImageExtent> = Box::new(FixedExtent::new(file, path));
+        let extent: Box<dyn VhdImageExtent> = Box::new(FixedExtent::new(file, path));
         extent.write_footer(&footer)?;
 
-        Ok(Self{ footer, extent})
+        Ok(Self { footer, extent })
     }
 
     pub fn create_dynamic<S: Into<String>>(_path: S, size: u64) -> Result<Self> {

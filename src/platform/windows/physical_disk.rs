@@ -44,9 +44,7 @@ impl PhysicalDisk {
     /// Platform specific name like `\\.\PhysicalDrive0`  
     pub fn open_by_name(name: &str) -> Result<Self> {
         let nt_name = NtString::from(name);
-        nt_native::Disk::open(&nt_name)
-            .map_err(From::from)
-            .map(|d| Self(d))
+        nt_native::Disk::open(&nt_name).map_err(From::from).map(|d| Self(d))
     }
 
     pub fn is_readonly(&self) -> Result<bool> {

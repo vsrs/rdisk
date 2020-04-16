@@ -117,8 +117,7 @@ impl MasterBootRecord {
     }
 
     pub fn is_gpt_protective(&self) -> bool {
-        self.is_valid()
-            && self.partition_table[0].partition_kind == KnownPartitionKind::GptProtectiveMBR as u8
+        self.is_valid() && self.partition_table[0].partition_kind == KnownPartitionKind::GptProtectiveMBR as u8
     }
 }
 

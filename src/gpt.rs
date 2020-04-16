@@ -1,5 +1,5 @@
-use crate::prelude::*;
 use crate::mbr::MasterBootRecord;
+use crate::prelude::*;
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
@@ -48,10 +48,7 @@ impl Header {
 
 impl crate::AsByteSlice for Header {
     unsafe fn as_byte_slice(&self) -> &[u8] {
-        core::slice::from_raw_parts(
-            self as *const Self as *const u8,
-            core::mem::size_of::<Self>(),
-        )
+        core::slice::from_raw_parts(self as *const Self as *const u8, core::mem::size_of::<Self>())
     }
 }
 
@@ -83,15 +80,9 @@ pub struct Layout {
 fn read_partitions(disk: &impl Disk, header: &Header) -> Result<Vec<PartitionInfo>> {
     unsafe {
         let sector_size = disk.logical_sector_size()?;
-        let buffer_size = math::round_up(
-            header.partition_count * header.partition_entry_size,
-            sector_size,
-        );
+        let buffer_size = math::round_up(header.partition_count * header.partition_entry_size, sector_size);
         let mut buffer = crate::alloc_buffer(buffer_size as usize);
-        disk.read_exact_at(
-            sector_size as u64 * header.partition_table_lba,
-            buffer.as_mut_slice(),
-        )?;
+        disk.read_exact_at(sector_size as u64 * header.partition_table_lba, buffer.as_mut_slice())?;
 
         let crc = crc::crc32(&buffer);
         if crc != header.partition_array_crc32 {
@@ -115,9 +106,7 @@ fn read_partitions(disk: &impl Disk, header: &Header) -> Result<Vec<PartitionInf
                 offset,
                 length,
                 flags: raw.flags,
-                name: String::from_utf16_lossy(&raw.name)
-                    .trim_end_matches('\0')
-                    .to_string(), // TODO: FromWide trait
+                name: String::from_utf16_lossy(&raw.name).trim_end_matches('\0').to_string(), // TODO: FromWide trait
             });
         }
 

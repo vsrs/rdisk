@@ -11,19 +11,12 @@ pub struct Geometry {
 impl core::fmt::Display for Geometry {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         if self.bytes_per_sector == sizes::SECTOR {
-            write!(
-                f,
-                "({}/{}/{})",
-                &self.cylinders, &self.heads_per_cylinder, &self.sectors_per_track
-            )
+            write!(f, "({}/{}/{})", &self.cylinders, &self.heads_per_cylinder, &self.sectors_per_track)
         } else {
             write!(
                 f,
                 "({}/{}/{}:{})",
-                &self.cylinders,
-                &self.heads_per_cylinder,
-                &self.sectors_per_track,
-                &self.bytes_per_sector
+                &self.cylinders, &self.heads_per_cylinder, &self.sectors_per_track, &self.bytes_per_sector
             )
         }
     }
@@ -50,10 +43,7 @@ impl Geometry {
         };
 
         let sectors = 63_u32;
-        let cylinders = core::cmp::min(
-            1024_u64,
-            capacity / (sectors * heads * sizes::SECTOR) as u64,
-        );
+        let cylinders = core::cmp::min(1024_u64, capacity / (sectors * heads * sizes::SECTOR) as u64);
         Geometry::chs(cylinders, heads, sectors)
     }
 
@@ -71,8 +61,7 @@ impl Geometry {
             capacity as u32 / sector_size
         };
 
-        let (heads_per_cylinder, sectors_per_track) = if total_sectors > 65535_u32 * 16_u32 * 63_u32
-        {
+        let (heads_per_cylinder, sectors_per_track) = if total_sectors > 65535_u32 * 16_u32 * 63_u32 {
             (255, 16)
         } else {
             let mut sectors_per_track = 17_u32;

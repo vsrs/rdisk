@@ -3,8 +3,8 @@ use rdisk_shared::AsByteSlice;
 
 pub(crate) fn calc_header_bytes_checksum<H: AsByteSlice>(header: &H) -> u32 {
     let mut new_checksum = 0_u32;
-    for b in unsafe{ header.as_byte_slice() } {
-        new_checksum += *b as u32 ;
+    for b in unsafe { header.as_byte_slice() } {
+        new_checksum += *b as u32;
     }
 
     !new_checksum
@@ -16,7 +16,7 @@ macro_rules! calc_header_checksum {
         copy.checksum = 0;
 
         crate::vhd::calc_header_bytes_checksum(&copy)
-    }}
+    }};
 }
 
 mod footer;
@@ -34,7 +34,7 @@ pub use fixed::*;
 mod sparse;
 pub use sparse::*;
 
-trait VhdImageExtent : ImageExtent {
+trait VhdImageExtent: ImageExtent {
     fn write_footer(&self, footer: &Footer) -> Result<()>;
 }
 

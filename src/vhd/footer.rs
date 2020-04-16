@@ -1,6 +1,6 @@
 use super::{VhdError, VhdKind};
 use crate::prelude::*;
-use rdisk_shared::{AsByteSliceMut, AsByteSlice, StructBuffer};
+use rdisk_shared::{AsByteSlice, AsByteSliceMut, StructBuffer};
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
@@ -12,7 +12,7 @@ struct VhdDiskGeometry {
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
-struct VhdFooterRecord {
+pub(crate) struct VhdFooterRecord {
     cookie_id: u64,
     features: u32,
     format_version: u32,
@@ -66,17 +66,17 @@ pub(crate) struct Footer {
 
 impl Footer {
     pub fn new(size: u64, kind: VhdKind) -> Self {
-        const FEATURES : u32 = 2;
-        const FORMAT_VERSION : u32 = 0x00010000;
-        const CREATOR_APP : u32 = 0x6b_73_64_72; // "rdsk"
-        const CREATOR_VERSION : u32 = 0x00010000;
+        const FEATURES: u32 = 2;
+        const FORMAT_VERSION: u32 = 0x00010000;
+        const CREATOR_APP: u32 = 0x6b_73_64_72; // "rdsk"
+        const CREATOR_VERSION: u32 = 0x00010000;
 
-        const WIN_OS_ID : u32 = 0x6b326957; // "Wi2k"
-        // const MAC_OS_ID : u32 = 0x2063614d; // "Mac "
+        const WIN_OS_ID: u32 = 0x6b326957; // "Wi2k"
+                                           // const MAC_OS_ID : u32 = 0x2063614d; // "Mac "
 
-        let data_offset : u64 = match kind {
+        let data_offset: u64 = match kind {
             VhdKind::Fixed => 0xFFFF_FFFF_FFFF_FFFF,
-            _ => crate::sizes::SECTOR_U64
+            _ => crate::sizes::SECTOR_U64,
         };
 
         let timestamp = 0; // TODO
@@ -101,7 +101,7 @@ impl Footer {
 
     pub fn read(stream: &impl ReadAt, pos: u64) -> Result<Self> {
         let mut footer = unsafe { rdisk_shared::StructBuffer::<VhdFooterRecord>::new() };
-        stream.read_exact_at(pos, unsafe { footer.as_byte_slice_mut()} )?;
+        stream.read_exact_at(pos, unsafe { footer.as_byte_slice_mut() })?;
 
         if COOKIE_ID != footer.cookie_id {
             return Err(Error::from(VhdError::InvalidHeaderCookie));
@@ -171,9 +171,9 @@ impl Footer {
         footer.current_size = self.current_size;
         footer.disk_geometry = disk_geometry;
         footer.disk_type = disk_type;
-        footer.checksum =  0;
-        footer.unique_id =  *self.unique_id.as_bytes();
-        footer.saved_state =  self.saved_state;
+        footer.checksum = 0;
+        footer.unique_id = *self.unique_id.as_bytes();
+        footer.saved_state = self.saved_state;
 
         let checksum = super::calc_header_bytes_checksum(&footer);
         footer.checksum = checksum;

@@ -1,4 +1,4 @@
-use crate::{vhd::VhdError, prelude::*};
+use crate::{prelude::*, vhd::VhdError};
 use rdisk_shared::AsByteSliceMut;
 
 #[repr(C, packed)]
@@ -64,9 +64,8 @@ pub struct SparseHeader {
 
 impl SparseHeader {
     pub fn read(stream: &impl ReadAt, pos: u64) -> Result<Self> {
-
         let mut header = unsafe { rdisk_shared::StructBuffer::<VhdSparseHeaderRecord>::new() };
-        stream.read_exact_at(pos, unsafe { header.as_byte_slice_mut() } )?;
+        stream.read_exact_at(pos, unsafe { header.as_byte_slice_mut() })?;
 
         if SPARSE_COOKIE_ID != header.cookie_id {
             return Err(Error::from(VhdError::InvalidHeaderCookie));
@@ -83,7 +82,7 @@ impl SparseHeader {
         let safe_copy = header.parent_unicode_name; // parent_unicode_name is inside packed struct and requires unsafe block to borrow
         let parent_name = String::from_utf16_lossy(&safe_copy).trim_end_matches('\0').to_string();
 
-        Ok(Self{
+        Ok(Self {
             data_offset: header.data_offset,
             table_offset: header.table_offset,
             header_version: header.header_version,

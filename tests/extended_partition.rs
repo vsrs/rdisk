@@ -52,15 +52,14 @@ fn extended_partition() {
         if path.exists() {
             let image = raw::RawDiskImage::open(&path.to_string_lossy().to_string()).unwrap();
             dump_image_info(&image);
-    
+
             let layout = DiskLayout::read(&image).unwrap();
             dump_layout(&layout);
-    
+
             for area in layout.partitions() {
                 println!("@{} : {}", area.offset / 512, area.length / 512);
             }
-        }
-        else {
+        } else {
             print!("No test data, skipped ... ")
         }
     }
