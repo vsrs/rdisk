@@ -1,9 +1,18 @@
 use super::*;
 use crate::{math, sizes};
 
+pub use sparse::SparseHeader;
+
 pub struct VhdImage {
     footer: Footer,
     extent: Box<dyn VhdImageExtent>,
+}
+
+impl Drop for VhdImage{
+    fn drop(&mut self) {
+        let res = self.flush();
+        debug_assert!( res.is_ok() );
+    }
 }
 
 impl ReadAt for VhdImage {
@@ -59,12 +68,17 @@ impl DiskImage for VhdImage {
 }
 
 const MAX_VHD_SIZE: u64 = 2040 * sizes::GIB;
+fn check_max_size(size: u64) -> Result<()> {
+    if size > MAX_VHD_SIZE {
+        return Err(Error::from(VhdError::DiskSizeTooBig));
+    }
+
+    Ok(())
+}
 
 impl VhdImage {
     pub fn create_fixed<S: Into<String>>(path: S, size: u64) -> Result<Self> {
-        if size > MAX_VHD_SIZE {
-            return Err(Error::from(VhdError::DiskSizeTooBig));
-        }
+        check_max_size(size)?;
 
         let path = path.into();
         let file = File::create_preallocated(&path, size + sizes::SECTOR_U64)?;
@@ -76,9 +90,7 @@ impl VhdImage {
     }
 
     pub fn create_dynamic<S: Into<String>>(_path: S, size: u64) -> Result<Self> {
-        if size > MAX_VHD_SIZE {
-            return Err(Error::from(VhdError::DiskSizeTooBig));
-        }
+        check_max_size(size)?;
 
         todo!()
     }
@@ -118,5 +130,13 @@ impl VhdImage {
 
     pub fn id(&self) -> &Uuid {
         &self.footer.unique_id
+    }
+
+    pub fn footer(&self) -> &Footer {
+        &self.footer
+    }
+
+    pub fn sparse_header(&self) -> Option<&SparseHeader> {
+        self.extent.sparse_header()
     }
 }

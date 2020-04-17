@@ -51,19 +51,19 @@ impl VhdSparseHeaderRecord {
 }
 
 pub struct SparseHeader {
-    pub(crate) data_offset: u64,
-    pub(crate) table_offset: u64,
-    pub(crate) header_version: u32,
-    pub(crate) max_table_entries: u32,
-    pub(crate) block_size: u32,
-    pub(crate) parent_id: Uuid,
+    pub data_offset: u64,
+    pub table_offset: u64,
+    pub header_version: u32,
+    pub max_table_entries: u32,
+    pub block_size: u32,
+    pub parent_id: Uuid,
+    pub parent_name: String,
     pub(crate) parent_time_stamp: u32,
-    pub(crate) parent_name: String,
     pub(crate) parent_locators: [ParentLocatorRecord; 8],
 }
 
 impl SparseHeader {
-    pub fn read(stream: &impl ReadAt, pos: u64) -> Result<Self> {
+    pub(crate) fn read(stream: &impl ReadAt, pos: u64) -> Result<Self> {
         let mut header = unsafe { rdisk_shared::StructBuffer::<VhdSparseHeaderRecord>::new() };
         stream.read_exact_at(pos, unsafe { header.as_byte_slice_mut() })?;
 

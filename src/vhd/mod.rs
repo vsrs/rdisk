@@ -34,8 +34,9 @@ pub use fixed::*;
 mod sparse;
 pub use sparse::*;
 
-trait VhdImageExtent: ImageExtent {
+trait VhdImageExtent: ImageExtent + ImageExtentOps {
     fn write_footer(&self, footer: &Footer) -> Result<()>;
+    fn sparse_header(&self) -> Option<&SparseHeader>;
 }
 
 #[derive(Copy, Clone, FromPrimitive, ToPrimitive, Eq, PartialEq)]

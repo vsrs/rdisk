@@ -68,7 +68,10 @@ pub trait DiskImage: Disk {
     fn storage_size(&self) -> Result<u64>;
 }
 
-pub(crate) trait ImageExtent: ReadAt + WriteAt + Flush {
+pub(crate) trait ImageExtentOps : ReadAt + WriteAt + Flush {
+}
+
+pub trait ImageExtent {
     fn backing_files(&self) -> Box<dyn core::iter::Iterator<Item = String>>;
     fn storage_size(&self) -> Result<u64>;
 }

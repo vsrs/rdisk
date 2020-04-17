@@ -45,12 +45,19 @@ impl ImageExtent for FixedExtent {
     }
 }
 
+impl ImageExtentOps for FixedExtent {
+}
+
 impl VhdImageExtent for FixedExtent {
     fn write_footer(&self, footer: &Footer) -> Result<()> {
         let bytes = footer.to_bytes();
         let pos = self.file.size()? - crate::sizes::SECTOR_U64;
 
         self.file.write_all_at(pos, &bytes)
+    }
+    
+    fn sparse_header(&self) -> Option<&SparseHeader> {
+        None
     }
 }
 

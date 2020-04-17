@@ -48,24 +48,24 @@ impl VhdFooterRecord {
     }
 }
 
-pub(crate) struct Footer {
-    pub(crate) features: u32,
-    pub(crate) format_version: u32,
-    pub(crate) data_offset: u64,
-    pub(crate) timestamp: u32,
-    pub(crate) creator_app_id: u32,
-    pub(crate) creator_version: u32,
-    pub(crate) creator_os_id: u32,
-    pub(crate) original_size: u64,
-    pub(crate) current_size: u64,
-    pub(crate) geometry: Geometry,
-    pub(crate) disk_type: VhdKind,
-    pub(crate) unique_id: Uuid,
-    pub(crate) saved_state: u8,
+pub struct Footer {
+    pub features: u32,
+    pub format_version: u32,
+    pub data_offset: u64,
+    pub timestamp: u32,
+    pub creator_app_id: u32,
+    pub creator_version: u32,
+    pub creator_os_id: u32,
+    pub original_size: u64,
+    pub current_size: u64,
+    pub geometry: Geometry,
+    pub disk_type: VhdKind,
+    pub unique_id: Uuid,
+    pub saved_state: u8,
 }
 
 impl Footer {
-    pub fn new(size: u64, kind: VhdKind) -> Self {
+    pub(crate) fn new(size: u64, kind: VhdKind) -> Self {
         const FEATURES: u32 = 2;
         const FORMAT_VERSION: u32 = 0x00010000;
         const CREATOR_APP: u32 = 0x6b_73_64_72; // "rdsk"
@@ -99,7 +99,7 @@ impl Footer {
         }
     }
 
-    pub fn read(stream: &impl ReadAt, pos: u64) -> Result<Self> {
+    pub(crate) fn read(stream: &impl ReadAt, pos: u64) -> Result<Self> {
         let mut footer = unsafe { rdisk_shared::StructBuffer::<VhdFooterRecord>::new() };
         stream.read_exact_at(pos, unsafe { footer.as_byte_slice_mut() })?;
 
@@ -147,7 +147,7 @@ impl Footer {
         })
     }
 
-    pub fn to_bytes(&self) -> Vec<u8> {
+    pub(crate) fn to_bytes(&self) -> Vec<u8> {
         let geometry = self.geometry.clone(); // to_vhd_safe() or to_bios_safe();
         let disk_geometry = VhdDiskGeometry {
             cylinders: geometry.cylinders as u16,

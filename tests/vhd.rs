@@ -15,6 +15,16 @@ fn open_test_vhd(name: &str) -> Option<(VhdImage, String)> {
     })
 }
 
+fn open_test_vhd_copy(name: &str) -> Option<(VhdImage, String)> {
+    std::env::var("CARGO_MANIFEST_DIR").ok().and_then(|dir| {
+        let dir = std::path::PathBuf::from(dir).join("testdata");
+        let from = dir.join(name);
+        let copy_name = "copy_".to_string() + name;
+        let to = dir.join(&copy_name);
+        std::fs::copy(from,to).ok().and_then(|_| open_test_vhd(&copy_name))
+    })
+}
+
 fn check_no_read_footer(disk: &VhdImage) {
     let size = disk.capacity().unwrap();
     assert_eq!(3145728, size);
@@ -71,6 +81,30 @@ fn dynamic_vhd_read() {
         disk.read_at(510, buffer.as_mut_slice()).unwrap();
         assert_eq!(buffer[0], 0x55);
         assert_eq!(buffer[1], 0xAA);
+
+        check_no_read_footer(&disk);
+
+        let mut files = disk.backing_files();
+        assert_eq!(full_path, files.next().unwrap());
+        assert_eq!(None, files.next()); // should be no more files
+
+        check_layout(disk);
+    }
+}
+
+#[test]
+fn dynamic_vhd_write() {
+    if let Some((disk, full_path)) = open_test_vhd_copy("vhd_dynamic_small.vhd") {
+        let mut buffer: Vec<u8> = vec![0; 512];
+        disk.read_at(510, buffer.as_mut_slice()).unwrap();
+        assert_eq!(buffer[0], 0x55);
+        assert_eq!(buffer[1], 0xAA);
+
+        // at the end of the disk
+        disk.write_all_at(disk.capacity().unwrap()-4, &0xFF_00_AA_19_u32.to_be_bytes()).unwrap();
+
+        // at the end of the first block
+        disk.write_all_at(2*1024*1024-4, &0xFF_00_AA_19_u32.to_be_bytes()).unwrap();
 
         check_no_read_footer(&disk);
 

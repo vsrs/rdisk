@@ -4,7 +4,7 @@ use super::*;
 use crate::{math, sizes};
 
 mod header;
-use header::SparseHeader;
+pub use header::SparseHeader;
 use rdisk_shared::StructBuffer;
 
 mod bat;
@@ -74,11 +74,22 @@ impl ImageExtent for SparseExtent {
     }
 }
 
+impl ImageExtentOps for SparseExtent {
+}
+
 impl VhdImageExtent for SparseExtent {
     fn write_footer(&self, footer: &Footer) -> Result<()> {
-        let _ = footer;
+        let bytes = footer.to_bytes();
+        // first footer
+        self.file.write_all_at(0, &bytes)?;
 
-        unimplemented!()
+        // second footer
+        let next_block_pos = *self.next_block_pos.borrow();
+        self.file.write_all_at(next_block_pos, &bytes)
+    }
+
+    fn sparse_header(&self) -> Option<&SparseHeader> {
+        Some(&self.header)
     }
 }
 
