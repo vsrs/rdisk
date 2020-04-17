@@ -50,9 +50,9 @@ pub use platform::{File, PhysicalDisk};
 
 pub mod prelude {
     pub use super::Uuid;
-    pub use super::{Disk, DiskImage, Error, File, Geometry, ImageExtent, ReadAt, Result, WriteAt, Flush};
+    pub use super::{Disk, DiskImage, Error, File, Geometry, ReadAt, Result, WriteAt, Flush};
     pub use super::{Partition, PartitionInfo, PartitionKind, PartitionedDisk};
-    pub(crate) use crate::{crc, math, tools};
+    pub(crate) use crate::{crc, math, tools, ImageExtent};
     pub(crate) use rdisk_shared::xstd::*;
 }
 
