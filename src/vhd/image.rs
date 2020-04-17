@@ -24,6 +24,13 @@ impl WriteAt for VhdImage {
     }
 }
 
+impl Flush for VhdImage {
+    fn flush(&self) -> Result<()> { 
+        self.extent.write_footer(&self.footer)?;
+        self.extent.flush()
+    }
+}
+
 impl Disk for VhdImage {
     fn geometry(&self) -> Result<Geometry> {
         Ok(self.footer.geometry)

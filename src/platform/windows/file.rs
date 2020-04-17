@@ -1,4 +1,4 @@
-use crate::{ReadAt, Result, WriteAt};
+use crate::{ReadAt, Result, WriteAt, Flush};
 use nt_native::NtString;
 
 type NtFile = nt_native::File;
@@ -16,6 +16,12 @@ impl ReadAt for File {
 impl WriteAt for File {
     fn write_at(&self, offset: u64, data: &[u8]) -> Result<usize> {
         nt_native::WriteAt::write_at(&self.0, offset, data).map_err(From::from)
+    }
+}
+
+impl Flush for File{
+    fn flush(&self) -> Result<()> {
+        nt_native::Flush::flush(&self.0).map_err(From::from)
     }
 }
 

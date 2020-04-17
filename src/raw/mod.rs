@@ -24,6 +24,12 @@ impl WriteAt for RawDiskImage {
     }
 }
 
+impl Flush for RawDiskImage {
+    fn flush(&self) -> Result<()> { 
+        self.file.flush().map_err(From::from)
+    }
+}
+
 impl Disk for RawDiskImage {
     fn geometry(&self) -> Result<Geometry> {
         Ok(self.geometry)

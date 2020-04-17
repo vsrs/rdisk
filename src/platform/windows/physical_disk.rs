@@ -18,6 +18,12 @@ impl WriteAt for PhysicalDisk {
     }
 }
 
+impl Flush for PhysicalDisk {
+    fn flush(&self) -> Result<()> { 
+        nt_native::Flush::flush(&self.0).map_err(From::from)
+    }
+}
+
 impl Disk for PhysicalDisk {
     fn geometry(&self) -> crate::Result<Geometry> {
         self.0.geometry().map_err(From::from).map(|raw| Geometry {

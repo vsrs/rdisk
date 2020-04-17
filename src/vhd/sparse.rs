@@ -19,7 +19,6 @@ pub struct SparseExtent {
     cached_bitmap_dirty: RefCell<bool>,
     next_block_pos: RefCell<u64>,
     parent: Option<VhdImage>,
-
 }
 
 impl ReadAt for SparseExtent {
@@ -57,6 +56,12 @@ impl WriteAt for SparseExtent {
         }
 
         Ok(written)
+    }
+}
+
+impl Flush for SparseExtent {
+    fn flush(&self) -> Result<()> {
+        self.file.flush()
     }
 }
 
@@ -146,7 +151,7 @@ impl SparseExtent {
         Ok(is_bit_set)
     }
 
-    fn sectors_area(&self, to_read: u32, block_index: usize, sector_in_block: u32) -> Result<(bool, usize)> {
+    fn read_sectors(&self, to_read: u32, block_index: usize, sector_in_block: u32) -> Result<(bool, usize)> {
         let to_read_in_sectors = to_read / sizes::SECTOR;
         // remember first sector bit (valid data\parent or not)
         let first_sector_bit = self.check_sector_mask(block_index, sector_in_block)?;
@@ -199,7 +204,7 @@ impl SparseExtent {
             (data_exist, buffer)
         } else {
             // read as many full sectors as possible
-            let (data_exist, valid_len) = self.sectors_area(to_read, block_index, sector_in_block)?;
+            let (data_exist, valid_len) = self.read_sectors(to_read, block_index, sector_in_block)?;
             (data_exist, &mut buffer[..valid_len as usize])
         };
 
@@ -222,7 +227,7 @@ impl SparseExtent {
 
         let block_in_current_file = self.populate_block_bitmap(block_index)?;
         if block_in_current_file {
-            self.read_block_data(block_index, offset_in_block, block_buffer).map( |r| r.1)
+            self.read_block_data(block_index, offset_in_block, block_buffer).map(|r| r.1)
         } else {
             self.read_parent_or_zero(offset, block_buffer)
         }
@@ -240,11 +245,11 @@ impl SparseExtent {
         let offset_in_block = (offset % block_size) as u32;
         let sector_in_block = offset_in_block / sizes::SECTOR;
         let offset_in_sector = offset_in_block % sizes::SECTOR;
-        let mut to_write = core::cmp::min(data.len() as u32, self.header.block_size - offset_in_block);
+        let mut to_write = core::cmp::min(data.len(), (self.header.block_size - offset_in_block) as usize);
 
-        if offset_in_sector != 0 || to_write < sizes::SECTOR {
+        if offset_in_sector != 0 || to_write < (sizes::SECTOR as usize) {
             // reduce size to the end of the sector
-            to_write = core::cmp::min(data.len() as u32, sizes::SECTOR - offset_in_sector);
+            to_write = core::cmp::min(data.len(), (sizes::SECTOR - offset_in_sector) as usize);
 
             // read data for the sector
             let mut sector_buffer = unsafe { tools::alloc_buffer(sizes::SECTOR as usize) };
@@ -253,8 +258,8 @@ impl SparseExtent {
 
             // update the sector
             let start = offset_in_sector as usize;
-            let end = start + to_write as usize;
-            sector_buffer[start .. end].copy_from_slice(&data[..to_write as usize]);
+            let end = start + to_write;
+            sector_buffer[start..end].copy_from_slice(&data[..to_write]);
 
             // and write the sector back
             let pos = self.calc_sector_pos(block_index, sector_in_block)?;
@@ -264,9 +269,23 @@ impl SparseExtent {
                 // data was read from the parent
                 self.mark_cached_bitmap_dirty(sector_in_block as usize);
             }
+        } else {
+            // write as much whole sectors as possible
+            to_write = math::round_down(to_write, sizes::SECTOR as usize);
+            let pos = self.calc_sector_pos(block_index, sector_in_block)?;
+            self.file.write_all_at(pos, &data[..to_write])?;
+
+            // update bitmap bits for written sectors
+            let mut i = 0;
+            let mut sector_in_block = sector_in_block as usize;
+            while i < to_write {
+                self.mark_cached_bitmap_dirty(sector_in_block);
+                sector_in_block += 1;
+                i += sizes::SECTOR as usize;
+            }
         }
 
-        todo!()
+        Ok(to_write)
     }
 
     fn allocate_block(&self, block_index: usize) -> Result<()> {
@@ -279,7 +298,7 @@ impl SparseExtent {
 
         let mut bitmap = self.cached_bitmap.borrow_mut();
         // initial block bitmap should be zeroed
-        unsafe { core::ptr::write_bytes( bitmap.as_mut_ptr(), 0, bitmap.len() ) };
+        unsafe { core::ptr::write_bytes(bitmap.as_mut_ptr(), 0, bitmap.len()) };
 
         let mut next_block_pos = self.next_block_pos.borrow_mut();
         let block_pos = *next_block_pos;
@@ -293,20 +312,21 @@ impl SparseExtent {
         }
 
         // write one byte at the end of the block to expand the file (OS will fill it with zeroes)
-        self.file.write_all_at(*next_block_pos - 1, unsafe { 0_u8.as_byte_slice()} )?;
+        self.file.write_all_at(*next_block_pos - 1, unsafe { 0_u8.as_byte_slice() })?;
 
-        // update BAT in memroy...
-        let block_pos_in_sectors = (block_pos/sizes::SECTOR_U64) as u32;
+        // update BAT in memory...
+        let block_pos_in_sectors = (block_pos / sizes::SECTOR_U64) as u32;
         self.bat.borrow_mut().set_block_id(block_index, block_pos_in_sectors);
 
-        // ... and in the file
+        // ...and in the file
         let swapped_id = block_pos_in_sectors.swap_bytes();
         let raw_block_pos_in_sectors_pos = self.header.table_offset + (block_index as u64 * 4);
-        self.file.write_all_at(raw_block_pos_in_sectors_pos, unsafe { swapped_id.as_byte_slice() } )?;
+        self.file
+            .write_all_at(raw_block_pos_in_sectors_pos, unsafe { swapped_id.as_byte_slice() })?;
 
         // TODO: It might be usefull to write VHD footer after each block allocation.
         //       This will reduce speed but greatly increase error tolerance.
-        
+
         Ok(())
     }
 
@@ -325,8 +345,9 @@ impl SparseExtent {
 
         let bitmap_pos = cached_block_id as u64 * sizes::SECTOR_U64;
         self.file.write_all_at(bitmap_pos, self.cached_bitmap.borrow_mut().as_mut_slice())?;
+        *cached_bitmap_dirty = false;
 
-        Ok(*cached_bitmap_dirty = false)
+        Ok(())
     }
 
     fn mark_cached_bitmap_dirty(&self, sector_in_block: usize) {

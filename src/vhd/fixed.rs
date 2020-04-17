@@ -30,6 +30,12 @@ impl WriteAt for FixedExtent {
     }
 }
 
+impl Flush for FixedExtent {
+    fn flush(&self) -> Result<()> {
+        self.file.flush()
+    }
+}
+
 impl ImageExtent for FixedExtent {
     fn backing_files(&self) -> Box<dyn Iterator<Item = String>> {
         Box::new(core::iter::once(self.file_path.clone()))

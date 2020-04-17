@@ -43,7 +43,11 @@ pub trait WriteAt {
     }
 }
 
-pub trait Disk: ReadAt + WriteAt {
+pub trait Flush {
+    fn flush(&self) -> Result<()>;
+}
+
+pub trait Disk: ReadAt + WriteAt + Flush {
     fn geometry(&self) -> Result<Geometry>;
     fn capacity(&self) -> Result<u64>;
     fn physical_sector_size(&self) -> Result<u32>;
@@ -64,7 +68,7 @@ pub trait DiskImage: Disk {
     fn storage_size(&self) -> Result<u64>;
 }
 
-pub trait ImageExtent: ReadAt + WriteAt {
+pub trait ImageExtent: ReadAt + WriteAt + Flush {
     fn backing_files(&self) -> Box<dyn core::iter::Iterator<Item = String>>;
     fn storage_size(&self) -> Result<u64>;
 }
