@@ -1,4 +1,7 @@
 /target
 Cargo.lock
 
-/testdata/*
+/testdata/*.vhd
+/testdata/*.dd
+/testdata/*.img
+/testdata/*.imz
