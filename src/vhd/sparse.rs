@@ -61,6 +61,7 @@ impl WriteAt for SparseExtent {
 
 impl Flush for SparseExtent {
     fn flush(&self) -> Result<()> {
+        self.save_cached_bitmap()?;
         self.file.flush()
     }
 }
@@ -137,6 +138,8 @@ impl SparseExtent {
         if block_id == UNUSED_BLOCK_ID {
             return Ok(false);
         }
+
+        self.save_cached_bitmap()?;
 
         let bitmap_pos = block_id as u64 * sizes::SECTOR_U64;
         self.file
@@ -262,22 +265,22 @@ impl SparseExtent {
             // reduce size to the end of the sector
             to_write = core::cmp::min(data.len(), (sizes::SECTOR - offset_in_sector) as usize);
 
-            // read data for the sector
+            // read the sector
             let mut sector_buffer = unsafe { tools::alloc_buffer(sizes::SECTOR as usize) };
             let sector_offset_in_block = math::round_down(offset_in_block, sizes::SECTOR);
             let (data_exists, _) = self.read_block_data(block_index, sector_offset_in_block, &mut sector_buffer)?;
 
-            // update the sector
+            // update it
             let start = offset_in_sector as usize;
             let end = start + to_write;
             sector_buffer[start..end].copy_from_slice(&data[..to_write]);
 
-            // and write the sector back
+            // and write back
             let pos = self.calc_sector_pos(block_index, sector_in_block)?;
             self.file.write_all_at(pos, &sector_buffer)?;
 
             if !data_exists {
-                // data was read from the parent
+                // the sector was read from the parent
                 self.mark_cached_bitmap_dirty(sector_in_block as usize);
             }
         } else {

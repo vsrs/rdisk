@@ -1,6 +1,7 @@
 use rdisk::mbr;
 use rdisk::prelude::*;
 use rdisk::vhd::{VhdImage, VhdKind};
+use rdisk_shared::AsByteSliceMut;
 
 fn open_test_vhd(name: &str) -> Option<(VhdImage, String)> {
     std::env::var("CARGO_MANIFEST_DIR").ok().and_then(|dir| {
@@ -20,6 +21,7 @@ fn open_test_vhd_copy(name: &str) -> Option<(VhdImage, String)> {
         let dir = std::path::PathBuf::from(dir).join("testdata");
         let from = dir.join(name);
         let copy_name = "copy_".to_string() + name;
+        let _  = std::fs::remove_file(&copy_name);
         let to = dir.join(&copy_name);
         std::fs::copy(from,to).ok().and_then(|_| open_test_vhd(&copy_name))
     })
@@ -100,17 +102,28 @@ fn dynamic_vhd_write() {
         assert_eq!(buffer[0], 0x55);
         assert_eq!(buffer[1], 0xAA);
 
+        let capacity = disk.capacity().unwrap();
+        let template = 0xFF_00_AA_19_u32;
         // at the end of the disk
-        disk.write_all_at(disk.capacity().unwrap()-4, &0xFF_00_AA_19_u32.to_be_bytes()).unwrap();
+        disk.write_all_at(capacity-4, &template.to_le_bytes()).unwrap();
+
+        let details = disk.sparse_header().unwrap();
 
         // at the end of the first block
-        disk.write_all_at(2*1024*1024-4, &0xFF_00_AA_19_u32.to_be_bytes()).unwrap();
+        disk.write_all_at(details.block_size as u64 - 2, &template.to_le_bytes()).unwrap();
 
         check_no_read_footer(&disk);
 
         let mut files = disk.backing_files();
         assert_eq!(full_path, files.next().unwrap());
         assert_eq!(None, files.next()); // should be no more files
+
+        let mut temp : u32 = 0;
+        disk.read_at(capacity-4, unsafe{ temp.as_byte_slice_mut() } ).unwrap();
+        assert_eq!(temp, template);
+
+        disk.read_at(details.block_size as u64 - 2, unsafe{ temp.as_byte_slice_mut() } ).unwrap();
+        assert_eq!(temp, template);
 
         check_layout(disk);
     }
