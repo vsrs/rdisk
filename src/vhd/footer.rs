@@ -129,6 +129,8 @@ impl Footer {
         };
 
         let unique_id = Uuid::from_bytes(footer.unique_id);
+        let fields = unique_id.to_fields_le();
+        let unique_id = Uuid::from_fields(fields.0, fields.1, fields.2, fields.3).unwrap();
 
         Ok(Footer {
             features: footer.features,
@@ -158,7 +160,10 @@ impl Footer {
         use num_traits::ToPrimitive;
         let disk_type = self.disk_type.to_u32().unwrap();
 
-        let mut footer = unsafe { StructBuffer::<VhdFooterRecord>::new() };
+        let fields = self.unique_id.to_fields_le();
+        let unique_id = Uuid::from_fields(fields.0, fields.1, fields.2, fields.3).unwrap();
+
+        let mut footer = StructBuffer::<VhdFooterRecord>::zeroed();
         footer.cookie_id = COOKIE_ID;
         footer.features = self.features;
         footer.format_version = self.format_version;
@@ -171,8 +176,7 @@ impl Footer {
         footer.current_size = self.current_size;
         footer.disk_geometry = disk_geometry;
         footer.disk_type = disk_type;
-        footer.checksum = 0;
-        footer.unique_id = *self.unique_id.as_bytes();
+        footer.unique_id = *unique_id.as_bytes();
         footer.saved_state = self.saved_state;
 
         let checksum = super::calc_header_bytes_checksum(&footer);

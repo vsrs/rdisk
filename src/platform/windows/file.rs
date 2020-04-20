@@ -38,6 +38,13 @@ impl File {
             .map_err(From::from)
     }
 
+    pub fn owerwrite_or_create(path: &str) -> Result<(Self, bool)> {
+        let nt_path = NtString::from(path);
+        NtFile::owerwrite_or_create(&nt_path)
+            .map(| (nt_file, already_exists)| (File(nt_file), already_exists))
+            .map_err(From::from)
+}
+
     pub fn size(&self) -> Result<u64> {
         self.0.size().map_err(From::from)
     }

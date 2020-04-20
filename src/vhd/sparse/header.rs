@@ -1,5 +1,5 @@
 use crate::{prelude::*, vhd::VhdError};
-use rdisk_shared::AsByteSliceMut;
+use rdisk_shared::{StructBuffer, AsByteSliceMut};
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
@@ -13,7 +13,7 @@ pub(crate) struct ParentLocatorRecord {
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
-struct VhdSparseHeaderRecord {
+pub(crate) struct VhdSparseHeaderRecord {
     cookie_id: u64,
     data_offset: u64,
     table_offset: u64,
@@ -63,8 +63,27 @@ pub struct SparseHeader {
 }
 
 impl SparseHeader {
+    pub(crate)  fn new(capacity: u64, table_offset: u64, block_size: u32) -> Self {
+        // Looks like a typo in the docs:
+        //     It is currently unused by existing formats and should be set to 0xFFFFFFFF,
+        // 
+        // All windows generated VHDs contains 0xFFFFFFFFFFFFFFFF
+        const DATA_OFFSET : u64 = 0xFFFFFFFFFFFFFFFF;
+        Self {
+            data_offset: DATA_OFFSET,
+            table_offset,
+            header_version: 0x00010000, // The only existing version
+            max_table_entries: math::ceil(capacity, block_size as u64) as u32,
+            block_size,
+            parent_id: Uuid::nil(),
+            parent_name: String::new(),
+            parent_time_stamp: 0,
+            parent_locators: unsafe{ core::mem::zeroed() },
+        }
+    }
+
     pub(crate) fn read(stream: &impl ReadAt, pos: u64) -> Result<Self> {
-        let mut header = unsafe { rdisk_shared::StructBuffer::<VhdSparseHeaderRecord>::new() };
+        let mut header = unsafe { StructBuffer::<VhdSparseHeaderRecord>::new() };
         stream.read_exact_at(pos, unsafe { header.as_byte_slice_mut() })?;
 
         if SPARSE_COOKIE_ID != header.cookie_id {
@@ -79,8 +98,8 @@ impl SparseHeader {
         }
 
         let parent_id = Uuid::from_bytes(header.parent_id);
-        let safe_copy = header.parent_unicode_name; // parent_unicode_name is inside packed struct and requires unsafe block to borrow
-        let parent_name = String::from_utf16_lossy(&safe_copy).trim_end_matches('\0').to_string();
+        let safe_copy = unsafe { &header.parent_unicode_name }; // parent_unicode_name is inside packed struct and requires unsafe block to borrow
+        let parent_name = String::from_utf16_lossy(safe_copy).trim_end_matches('\0').to_string();
 
         Ok(Self {
             data_offset: header.data_offset,
@@ -93,5 +112,21 @@ impl SparseHeader {
             parent_name,
             parent_locators: header.parent_locators,
         })
+    }
+
+    pub(crate) fn write(&self, stream: &impl WriteAt, pos: u64) -> Result<()> {
+        let mut header = StructBuffer::<VhdSparseHeaderRecord>::zeroed();
+        header.cookie_id = SPARSE_COOKIE_ID;
+        header.data_offset = self.data_offset;
+        header.table_offset = self.table_offset;
+        header.header_version = self.header_version;
+        header.max_table_entries = self.max_table_entries;
+        header.block_size = self.block_size;
+
+        let checksum = super::calc_header_bytes_checksum(&header);
+        header.checksum = checksum;
+        header.swap_bytes();
+
+        stream.write_all_at(pos, header.buffer())
     }
 }

@@ -1,11 +1,16 @@
 use super::VhdError;
 use crate::prelude::*;
+use rdisk_shared::AsByteSlice;
 
 pub struct Bat {
     entries: Vec<u32>,
 }
 
 impl Bat {
+    pub fn new(entries_count: u32) -> Self {
+        Self{ entries: vec![0xFF_FF_FF_FF; entries_count as usize] }
+    }
+
     pub fn read(stream: &impl ReadAt, offset: u64, entries_count: u32) -> Result<Self> {
         let entries_count = entries_count as usize;
 
@@ -25,6 +30,22 @@ impl Bat {
         }
 
         Ok(table)
+    }
+
+    pub fn write(&self, stream: &impl WriteAt, offset: u64) -> Result<usize> {
+        let mut temp = self.entries.clone();
+        for entry in &mut temp {
+            *entry = entry.swap_bytes();
+        }
+
+        // The BAT is always extended to a sector boundary.
+        let size = math::round_up(self.entries.len() * 4, crate::sizes::SECTOR as usize );
+        let mut buffer = vec![0xFF_u8; size];
+        let data = unsafe{ temp.as_byte_slice() };
+        buffer[..data.len()].copy_from_slice(data);
+
+        stream.write_all_at(offset, &buffer)?;
+        Ok(buffer.len())
     }
 
     pub fn block_id(&self, index: usize) -> Result<u32> {

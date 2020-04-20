@@ -5,6 +5,7 @@ use crate::{math, sizes};
 
 mod header;
 pub use header::SparseHeader;
+use header::VhdSparseHeaderRecord;
 use rdisk_shared::StructBuffer;
 
 mod bat;
@@ -95,19 +96,8 @@ impl VhdImageExtent for SparseExtent {
 }
 
 impl SparseExtent {
-    pub(crate) fn open(file: File, file_path: String, data_offset: u64) -> Result<Self> {
-        let header = SparseHeader::read(&file, data_offset)?;
-        let file_size = file.size()?;
-
-        if header.table_offset >= file_size {
-            return Err(Error::from(VhdError::InvalidSparseHeaderCookie));
-        }
-
-        let bat = bat::Bat::read(&file, header.table_offset, header.max_table_entries)?;
-        let bitmap_size = math::round_up(math::ceil(header.block_size, sizes::SECTOR * 8), sizes::SECTOR);
-
-        let next_block_pos = file_size - sizes::SECTOR_U64; // Hard Disk Footer position
-        Ok(Self {
+    fn new(file: File, file_path: String, header: SparseHeader, bat: bat::Bat, bitmap_size: u32, next_block_pos: u64) -> Self {
+        Self {
             file,
             file_path,
             header,
@@ -117,7 +107,41 @@ impl SparseExtent {
             parent: None,
             next_block_pos: RefCell::new(next_block_pos),
             cached_bitmap_dirty: RefCell::new(false),
-        })
+        }
+    }
+
+    pub(crate) fn open(file: File, file_path: String, data_offset: u64) -> Result<Self> {
+        let header = SparseHeader::read(&file, data_offset)?;
+        let file_size = file.size()?;
+
+        if header.table_offset >= file_size {
+            return Err(Error::from(VhdError::InvalidSparseHeaderOffset));
+        }
+
+        let bat = bat::Bat::read(&file, header.table_offset, header.max_table_entries)?;
+        let bitmap_size = math::round_up(math::ceil(header.block_size, sizes::SECTOR * 8), sizes::SECTOR);
+
+        let next_block_pos = file_size - sizes::SECTOR_U64; // Hard Disk Footer position
+        Ok(Self::new(file, file_path, header, bat, bitmap_size, next_block_pos))
+    }
+
+    pub(crate) fn create(file_path: String, footer: &Footer) -> Result<Self> {
+        const DEFAULT_BLOCK_SIZE: u32 = 2 * 1024 * 1024; // 2 MiB
+        const DEFAULT_HEADER_OFFSET: u64 = core::mem::size_of::<VhdFooterRecord>() as u64;
+        const DEFAULT_TABLE_OFFSET: u64 = DEFAULT_HEADER_OFFSET + core::mem::size_of::<VhdSparseHeaderRecord>() as u64;
+
+        let header = SparseHeader::new(footer.current_size, DEFAULT_TABLE_OFFSET, DEFAULT_BLOCK_SIZE);
+        let bat = bat::Bat::new(header.max_table_entries);
+        let bitmap_size = math::round_up(math::ceil(header.block_size, sizes::SECTOR * 8), sizes::SECTOR);
+
+        let (file, _) = File::owerwrite_or_create(&file_path)?;
+        header.write(&file, DEFAULT_HEADER_OFFSET)?;
+        let bat_size = bat.write(&file, DEFAULT_TABLE_OFFSET)?;
+        let next_block_pos = DEFAULT_TABLE_OFFSET + bat_size as u64; // immediately after BAT
+
+        let this = Self::new(file, file_path, header, bat, bitmap_size, next_block_pos);
+        this.write_footer(footer)?;
+        Ok(this)
     }
 }
 

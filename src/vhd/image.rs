@@ -89,10 +89,14 @@ impl VhdImage {
         Ok(Self { footer, extent })
     }
 
-    pub fn create_dynamic<S: Into<String>>(_path: S, size: u64) -> Result<Self> {
+    pub fn create_dynamic<S: Into<String>>(path: S, size: u64) -> Result<Self> {
         check_max_size(size)?;
 
-        todo!()
+        let path = path.into();
+        let footer = Footer::new(size, VhdKind::Dynamic);
+        let extent: Box<dyn VhdImageExtent> = Box::new(SparseExtent::create(path, &footer)?);
+
+        Ok(Self { footer, extent })
     }
 
     pub fn create_differencing<S: Into<String>>(_path: S, _parent: S) -> Result<Self> {
@@ -102,13 +106,13 @@ impl VhdImage {
     pub fn open<S: Into<String>>(path: S) -> Result<Self> {
         let path = path.into();
         let file = File::open(&path)?;
-        let capacity = file.size()?;
+        let file_size = file.size()?;
 
-        if capacity < sizes::SECTOR_U64 {
+        if file_size < sizes::SECTOR_U64 {
             return Err(crate::Error::from(VhdError::FileTooSmall));
         }
 
-        let footer_pos = capacity - sizes::SECTOR_U64;
+        let footer_pos = file_size - sizes::SECTOR_U64;
         let footer = Footer::read(&file, footer_pos)?;
         // Note: Versions previous to Microsoft Virtual PC 2004 create disk images that have a 511-byte disk footer.
         // So the hard disk footer can exist in the last 511 or 512 bytes of the file that holds the hard disk image.

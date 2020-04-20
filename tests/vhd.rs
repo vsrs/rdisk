@@ -2,10 +2,17 @@ use rdisk::mbr;
 use rdisk::prelude::*;
 use rdisk::vhd::{VhdImage, VhdKind};
 use rdisk_shared::AsByteSliceMut;
+use std::path::PathBuf;
+
+fn get_testdata_path() -> Option<PathBuf> {
+    std::env::var("CARGO_MANIFEST_DIR").ok().map(|dir| {
+        PathBuf::from(dir).join("testdata")
+    })
+}
 
 fn open_test_vhd(name: &str) -> Option<(VhdImage, String)> {
-    std::env::var("CARGO_MANIFEST_DIR").ok().and_then(|dir| {
-        let path = std::path::PathBuf::from(dir).join("testdata").join(name);
+    get_testdata_path().and_then(|dir| {
+        let path = dir.join(name);
         let path = path.to_string_lossy().to_string();
         if let Ok(vhd) = VhdImage::open(path.clone()) {
             Some((vhd, path))
@@ -17,8 +24,7 @@ fn open_test_vhd(name: &str) -> Option<(VhdImage, String)> {
 }
 
 fn open_test_vhd_copy(name: &str) -> Option<(VhdImage, String)> {
-    std::env::var("CARGO_MANIFEST_DIR").ok().and_then(|dir| {
-        let dir = std::path::PathBuf::from(dir).join("testdata");
+    get_testdata_path().and_then(|dir| {
         let from = dir.join(name);
         let copy_name = "copy_".to_string() + name;
         let _  = std::fs::remove_file(&copy_name);
@@ -90,6 +96,9 @@ fn dynamic_vhd_read() {
         assert_eq!(full_path, files.next().unwrap());
         assert_eq!(None, files.next()); // should be no more files
 
+        let id = format!("{:X}", disk.id());
+        assert_eq!("ED51C3E2-93A7-4FF2-B7C4-D0B6407D49B0", id);
+
         check_layout(disk);
     }
 }
@@ -143,6 +152,32 @@ fn fixed_vhd_create() {
     let disk = VhdImage::open(name).unwrap();
     assert_eq!(size, disk.capacity().unwrap());
     assert!(VhdKind::Fixed == disk.kind());
+    let mut buffer = vec![0; 4];
+    disk.read_at(size / 2, &mut buffer).unwrap();
+    assert_eq!(buffer, b"asdf");
+    drop(disk);
+
+    let _ = std::fs::remove_file(&name);
+}
+
+#[test]
+fn dynamic_vhd_create() {
+    let name = "sample_d.vhd";
+    let size = 3 * 1024 * 1024;
+
+    let _ = std::fs::remove_file(&name);
+
+    let disk = VhdImage::create_dynamic(name, size).unwrap();
+    drop(disk);
+
+    let disk = VhdImage::open(name).unwrap();
+    assert_eq!(size, disk.capacity().unwrap());
+    assert!(VhdKind::Dynamic == disk.kind());
+
+    disk.write_at(size / 2, b"asdf").unwrap();
+    drop(disk);
+
+    let disk = VhdImage::open(name).unwrap();
     let mut buffer = vec![0; 4];
     disk.read_at(size / 2, &mut buffer).unwrap();
     assert_eq!(buffer, b"asdf");
