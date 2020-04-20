@@ -144,7 +144,6 @@ impl SparseExtent {
     }
 }
 
-const UNUSED_BLOCK_ID: u32 = 0xFFFFFFFF;
 const INVALID_CACHE_INDEX: usize = usize::max_value();
 
 fn calc_sector_mask(sector_in_block: usize) -> u8 {
@@ -158,7 +157,7 @@ impl SparseExtent {
         }
 
         let block_id = self.bat.borrow().block_id(index)?;
-        if block_id == UNUSED_BLOCK_ID {
+        if block_id == bat::UNUSED_BLOCK_ID {
             return Ok(false);
         }
 
@@ -210,7 +209,7 @@ impl SparseExtent {
     fn calc_sector_pos(&self, block_index: usize, sector_in_block: u32) -> Result<u64> {
         let block_id = self.bat.borrow().block_id(block_index)?;
 
-        if block_id == UNUSED_BLOCK_ID {
+        if block_id == bat::UNUSED_BLOCK_ID {
             return Err(Error::from(VhdError::UnexpectedBlockId(block_index, block_id)));
         }
 
@@ -327,7 +326,7 @@ impl SparseExtent {
 
     fn allocate_block(&self, block_index: usize) -> Result<()> {
         let block_id = self.bat.borrow().block_id(block_index)?;
-        if block_id != UNUSED_BLOCK_ID {
+        if block_id != bat::UNUSED_BLOCK_ID {
             return Err(Error::from(VhdError::UnexpectedBlockId(block_index, block_id)));
         }
 
@@ -370,13 +369,13 @@ impl SparseExtent {
     fn save_cached_bitmap(&self) -> Result<()> {
         let cached_block_index = *self.cached_block_index.borrow();
         let mut cached_bitmap_dirty = self.cached_bitmap_dirty.borrow_mut();
-        if cached_block_index == INVALID_CACHE_INDEX || *cached_bitmap_dirty == false {
+        if cached_block_index == INVALID_CACHE_INDEX || !(*cached_bitmap_dirty) {
             // no bitmap cached or no changes since previous write
             return Ok(());
         }
 
         let cached_block_id = self.bat.borrow().block_id(cached_block_index)?;
-        if cached_block_id == UNUSED_BLOCK_ID {
+        if cached_block_id == bat::UNUSED_BLOCK_ID {
             return Err(Error::from(VhdError::UnexpectedBlockId(cached_block_index, cached_block_id)));
         }
 

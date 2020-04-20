@@ -19,6 +19,13 @@ macro_rules! calc_header_checksum {
     }};
 }
 
+const FEATURES: u32 = 2;
+const FORMAT_VERSION: u32 = 0x0001_0000;
+pub const CREATOR_APP: u32 = 0x6b_73_64_72; // "rdsk"
+pub const CREATOR_VERSION: u32 = 0x0001_0000;
+pub const WIN_OS_ID: u32 = 0x6b_32_69_57; // "Wi2k"
+pub const MAC_OS_ID: u32 = 0x20_63_61_4d; // "Mac "
+
 mod footer;
 use footer::*;
 

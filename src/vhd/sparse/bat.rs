@@ -6,6 +6,8 @@ pub struct Bat {
     entries: Vec<u32>,
 }
 
+pub const UNUSED_BLOCK_ID: u32 = 0xFFFF_FFFF;
+
 impl Bat {
     pub fn new(entries_count: u32) -> Self {
         Self {

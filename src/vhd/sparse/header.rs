@@ -1,3 +1,4 @@
+use crate::vhd::FORMAT_VERSION;
 use crate::{prelude::*, vhd::VhdError};
 use rdisk_shared::{AsByteSliceMut, StructBuffer};
 
@@ -58,8 +59,8 @@ pub struct SparseHeader {
     pub block_size: u32,
     pub parent_id: Uuid,
     pub parent_name: String,
-    pub(crate) parent_time_stamp: u32,
-    pub(crate) parent_locators: [ParentLocatorRecord; 8],
+    pub(crate) _parent_time_stamp: u32,
+    pub(crate) _parent_locators: [ParentLocatorRecord; 8],
 }
 
 impl SparseHeader {
@@ -68,17 +69,17 @@ impl SparseHeader {
         //     It is currently unused by existing formats and should be set to 0xFFFFFFFF,
         //
         // All windows generated VHDs contains 0xFFFFFFFFFFFFFFFF
-        const DATA_OFFSET: u64 = 0xFFFFFFFFFFFFFFFF;
+        const DATA_OFFSET: u64 = 0xFFFF_FFFF_FFFF_FFFF;
         Self {
             data_offset: DATA_OFFSET,
             table_offset,
-            header_version: 0x00010000, // The only existing version
+            header_version: FORMAT_VERSION, // The only existing version
             max_table_entries: math::ceil(capacity, block_size as u64) as u32,
             block_size,
             parent_id: Uuid::nil(),
             parent_name: String::new(),
-            parent_time_stamp: 0,
-            parent_locators: unsafe { core::mem::zeroed() },
+            _parent_time_stamp: 0,
+            _parent_locators: unsafe { core::mem::zeroed() },
         }
     }
 
@@ -108,9 +109,9 @@ impl SparseHeader {
             max_table_entries: header.max_table_entries,
             block_size: header.block_size,
             parent_id,
-            parent_time_stamp: header.parent_time_stamp,
+            _parent_time_stamp: header.parent_time_stamp,
             parent_name,
-            parent_locators: header.parent_locators,
+            _parent_locators: header.parent_locators,
         })
     }
 

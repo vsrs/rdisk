@@ -1,5 +1,4 @@
-use super::{VhdError, VhdKind};
-use crate::prelude::*;
+use super::*;
 use rdisk_shared::{AsByteSlice, AsByteSliceMut, StructBuffer};
 
 #[repr(C, packed)]
@@ -66,14 +65,6 @@ pub struct Footer {
 
 impl Footer {
     pub(crate) fn new(size: u64, kind: VhdKind) -> Self {
-        const FEATURES: u32 = 2;
-        const FORMAT_VERSION: u32 = 0x00010000;
-        const CREATOR_APP: u32 = 0x6b_73_64_72; // "rdsk"
-        const CREATOR_VERSION: u32 = 0x00010000;
-
-        const WIN_OS_ID: u32 = 0x6b326957; // "Wi2k"
-                                           // const MAC_OS_ID : u32 = 0x2063614d; // "Mac "
-
         let data_offset: u64 = match kind {
             VhdKind::Fixed => 0xFFFF_FFFF_FFFF_FFFF,
             _ => crate::sizes::SECTOR_U64,
@@ -150,7 +141,7 @@ impl Footer {
     }
 
     pub(crate) fn to_bytes(&self) -> Vec<u8> {
-        let geometry = self.geometry.clone(); // to_vhd_safe() or to_bios_safe();
+        let geometry = self.geometry; // to_vhd_safe() or to_bios_safe();
         let disk_geometry = VhdDiskGeometry {
             cylinders: geometry.cylinders as u16,
             heads: geometry.heads_per_cylinder as u8,
