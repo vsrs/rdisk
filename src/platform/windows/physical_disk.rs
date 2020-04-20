@@ -19,7 +19,7 @@ impl WriteAt for PhysicalDisk {
 }
 
 impl Flush for PhysicalDisk {
-    fn flush(&self) -> Result<()> { 
+    fn flush(&self) -> Result<()> {
         nt_native::Flush::flush(&self.0).map_err(From::from)
     }
 }

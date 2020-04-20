@@ -1,4 +1,4 @@
-use crate::{ReadAt, Result, WriteAt, Flush};
+use crate::{Flush, ReadAt, Result, WriteAt};
 use nt_native::NtString;
 
 type NtFile = nt_native::File;
@@ -19,7 +19,7 @@ impl WriteAt for File {
     }
 }
 
-impl Flush for File{
+impl Flush for File {
     fn flush(&self) -> Result<()> {
         nt_native::Flush::flush(&self.0).map_err(From::from)
     }
@@ -41,9 +41,9 @@ impl File {
     pub fn owerwrite_or_create(path: &str) -> Result<(Self, bool)> {
         let nt_path = NtString::from(path);
         NtFile::owerwrite_or_create(&nt_path)
-            .map(| (nt_file, already_exists)| (File(nt_file), already_exists))
+            .map(|(nt_file, already_exists)| (File(nt_file), already_exists))
             .map_err(From::from)
-}
+    }
 
     pub fn size(&self) -> Result<u64> {
         self.0.size().map_err(From::from)

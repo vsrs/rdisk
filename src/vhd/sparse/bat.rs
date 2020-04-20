@@ -8,7 +8,9 @@ pub struct Bat {
 
 impl Bat {
     pub fn new(entries_count: u32) -> Self {
-        Self{ entries: vec![0xFF_FF_FF_FF; entries_count as usize] }
+        Self {
+            entries: vec![0xFF_FF_FF_FF; entries_count as usize],
+        }
     }
 
     pub fn read(stream: &impl ReadAt, offset: u64, entries_count: u32) -> Result<Self> {
@@ -39,9 +41,9 @@ impl Bat {
         }
 
         // The BAT is always extended to a sector boundary.
-        let size = math::round_up(self.entries.len() * 4, crate::sizes::SECTOR as usize );
+        let size = math::round_up(self.entries.len() * 4, crate::sizes::SECTOR as usize);
         let mut buffer = vec![0xFF_u8; size];
-        let data = unsafe{ temp.as_byte_slice() };
+        let data = unsafe { temp.as_byte_slice() };
         buffer[..data.len()].copy_from_slice(data);
 
         stream.write_all_at(offset, &buffer)?;

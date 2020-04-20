@@ -25,7 +25,7 @@ impl WriteAt for RawDiskImage {
 }
 
 impl Flush for RawDiskImage {
-    fn flush(&self) -> Result<()> { 
+    fn flush(&self) -> Result<()> {
         self.file.flush().map_err(From::from)
     }
 }

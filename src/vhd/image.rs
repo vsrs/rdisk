@@ -8,10 +8,10 @@ pub struct VhdImage {
     extent: Box<dyn VhdImageExtent>,
 }
 
-impl Drop for VhdImage{
+impl Drop for VhdImage {
     fn drop(&mut self) {
         let res = self.flush();
-        debug_assert!( res.is_ok() );
+        debug_assert!(res.is_ok());
     }
 }
 
@@ -34,7 +34,7 @@ impl WriteAt for VhdImage {
 }
 
 impl Flush for VhdImage {
-    fn flush(&self) -> Result<()> { 
+    fn flush(&self) -> Result<()> {
         self.extent.write_footer(&self.footer)?;
         self.extent.flush()
     }

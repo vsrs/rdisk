@@ -1,5 +1,5 @@
 use crate::{prelude::*, vhd::VhdError};
-use rdisk_shared::{StructBuffer, AsByteSliceMut};
+use rdisk_shared::{AsByteSliceMut, StructBuffer};
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
@@ -63,12 +63,12 @@ pub struct SparseHeader {
 }
 
 impl SparseHeader {
-    pub(crate)  fn new(capacity: u64, table_offset: u64, block_size: u32) -> Self {
+    pub(crate) fn new(capacity: u64, table_offset: u64, block_size: u32) -> Self {
         // Looks like a typo in the docs:
         //     It is currently unused by existing formats and should be set to 0xFFFFFFFF,
-        // 
+        //
         // All windows generated VHDs contains 0xFFFFFFFFFFFFFFFF
-        const DATA_OFFSET : u64 = 0xFFFFFFFFFFFFFFFF;
+        const DATA_OFFSET: u64 = 0xFFFFFFFFFFFFFFFF;
         Self {
             data_offset: DATA_OFFSET,
             table_offset,
@@ -78,7 +78,7 @@ impl SparseHeader {
             parent_id: Uuid::nil(),
             parent_name: String::new(),
             parent_time_stamp: 0,
-            parent_locators: unsafe{ core::mem::zeroed() },
+            parent_locators: unsafe { core::mem::zeroed() },
         }
     }
 

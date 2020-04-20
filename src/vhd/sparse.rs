@@ -76,8 +76,7 @@ impl ImageExtent for SparseExtent {
     }
 }
 
-impl ImageExtentOps for SparseExtent {
-}
+impl ImageExtentOps for SparseExtent {}
 
 impl VhdImageExtent for SparseExtent {
     fn write_footer(&self, footer: &Footer) -> Result<()> {

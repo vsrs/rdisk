@@ -45,8 +45,7 @@ impl ImageExtent for FixedExtent {
     }
 }
 
-impl ImageExtentOps for FixedExtent {
-}
+impl ImageExtentOps for FixedExtent {}
 
 impl VhdImageExtent for FixedExtent {
     fn write_footer(&self, footer: &Footer) -> Result<()> {
@@ -55,7 +54,7 @@ impl VhdImageExtent for FixedExtent {
 
         self.file.write_all_at(pos, &bytes)
     }
-    
+
     fn sparse_header(&self) -> Option<&SparseHeader> {
         None
     }

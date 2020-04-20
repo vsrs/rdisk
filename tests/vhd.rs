@@ -5,9 +5,9 @@ use rdisk_shared::AsByteSliceMut;
 use std::path::PathBuf;
 
 fn get_testdata_path() -> Option<PathBuf> {
-    std::env::var("CARGO_MANIFEST_DIR").ok().map(|dir| {
-        PathBuf::from(dir).join("testdata")
-    })
+    std::env::var("CARGO_MANIFEST_DIR")
+        .ok()
+        .map(|dir| PathBuf::from(dir).join("testdata"))
 }
 
 fn open_test_vhd(name: &str) -> Option<(VhdImage, String)> {
@@ -27,9 +27,9 @@ fn open_test_vhd_copy(name: &str) -> Option<(VhdImage, String)> {
     get_testdata_path().and_then(|dir| {
         let from = dir.join(name);
         let copy_name = "copy_".to_string() + name;
-        let _  = std::fs::remove_file(&copy_name);
+        let _ = std::fs::remove_file(&copy_name);
         let to = dir.join(&copy_name);
-        std::fs::copy(from,to).ok().and_then(|_| open_test_vhd(&copy_name))
+        std::fs::copy(from, to).ok().and_then(|_| open_test_vhd(&copy_name))
     })
 }
 
@@ -114,7 +114,7 @@ fn dynamic_vhd_write() {
         let capacity = disk.capacity().unwrap();
         let template = 0xFF_00_AA_19_u32;
         // at the end of the disk
-        disk.write_all_at(capacity-4, &template.to_le_bytes()).unwrap();
+        disk.write_all_at(capacity - 4, &template.to_le_bytes()).unwrap();
 
         let details = disk.sparse_header().unwrap();
 
@@ -127,11 +127,12 @@ fn dynamic_vhd_write() {
         assert_eq!(full_path, files.next().unwrap());
         assert_eq!(None, files.next()); // should be no more files
 
-        let mut temp : u32 = 0;
-        disk.read_at(capacity-4, unsafe{ temp.as_byte_slice_mut() } ).unwrap();
+        let mut temp: u32 = 0;
+        disk.read_at(capacity - 4, unsafe { temp.as_byte_slice_mut() }).unwrap();
         assert_eq!(temp, template);
 
-        disk.read_at(details.block_size as u64 - 2, unsafe{ temp.as_byte_slice_mut() } ).unwrap();
+        disk.read_at(details.block_size as u64 - 2, unsafe { temp.as_byte_slice_mut() })
+            .unwrap();
         assert_eq!(temp, template);
 
         check_layout(disk);
