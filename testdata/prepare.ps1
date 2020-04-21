@@ -18,5 +18,8 @@ $partitions = Get-Partition | Select-Object -Property DiskNumber, PartitionNumbe
     Type, MbrType, DriveLetter, IsBoot, IsSystem
 $partitions | ConvertTo-Json | Out-File -FilePath "$data_dir\partitions.json" -Encoding ascii
 
+$volumes = Get-Volume | Select-Object -Property Path, Size, SizeRemaining, FileSystemType, FileSystemLabel, DriveLetter
+$volumes | ConvertTo-Json | Out-File -FilePath "$data_dir\volumes.json" -Encoding ascii
+
 Expand-Archive $data_file.FullName -DestinationPath $data_dir -Force
 Get-ChildItem -Path $data_dir | Out-String

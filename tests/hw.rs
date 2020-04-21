@@ -3,7 +3,7 @@ use rdisk::{PartitionedDisk, PhysicalDisk};
 use shared::*;
 
 #[test]
-fn hw_data() {
+fn partitions() {
     use serde::Deserialize;
 
     #[derive(Deserialize)]
@@ -47,6 +47,34 @@ fn hw_data() {
                 assert_eq!(hw.Offset, p.offset());
                 assert_eq!(hw.Size, p.length());
             }
+        }
+    }
+}
+
+#[test]
+fn volumes() {
+    use serde::Deserialize;
+
+    #[derive(Deserialize)]
+    #[allow(non_snake_case)]
+    struct VolumeInfo {
+        #[serde(rename="Path")]
+        VolPath: String,
+        Size: u64,
+        SizeRemaining: u64,
+        FileSystemType: String,
+        FileSystemLabel: String,
+        DriveLetter: Option<char>,
+    }
+
+    if let Some(dir) = get_testdata_path() {
+        let json_file = dir.join("volumes.json");
+        println!("Read from: {}", json_file.display());
+
+        let data = std::fs::read_to_string(json_file).unwrap();
+        let v: Vec<VolumeInfo> = serde_json::from_str(&data).unwrap();
+        for item in v {
+            println!("Volume: {}, {:?}", item.VolPath, item.DriveLetter)
         }
     }
 }

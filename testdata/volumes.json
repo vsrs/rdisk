@@ -1,0 +1,42 @@
+[
+    {
+        "Path":  "\\\\?\\Volume{736d36a8-0000-0000-0000-100000000000}\\",
+        "Size":  524219936768,
+        "SizeRemaining":  255973568512,
+        "FileSystemType":  "NTFS",
+        "FileSystemLabel":  "SYS",
+        "DriveLetter":  "C"
+    },
+    {
+        "Path":  "\\\\?\\Volume{736d36a8-0000-0000-0000-100e7a000000}\\",
+        "Size":  888139776,
+        "SizeRemaining":  441552896,
+        "FileSystemType":  "NTFS",
+        "FileSystemLabel":  "",
+        "DriveLetter":  null
+    },
+    {
+        "Path":  "\\\\?\\Volume{99df09a1-d2eb-420b-9bd9-f2886a9aca40}\\",
+        "Size":  3000457228288,
+        "SizeRemaining":  48683220992,
+        "FileSystemType":  "NTFS",
+        "FileSystemLabel":  "Arch",
+        "DriveLetter":  "D"
+    },
+    {
+        "Path":  "\\\\?\\Volume{db6394d2-0000-0000-0000-20823b000000}\\",
+        "Size":  471605248,
+        "SizeRemaining":  471564288,
+        "FileSystemType":  "FAT",
+        "FileSystemLabel":  "FAT_VOLUME",
+        "DriveLetter":  null
+    },
+    {
+        "Path":  "\\\\?\\Volume{db6394d2-0000-0000-0000-f01500000000}\\",
+        "Size":  255218151424,
+        "SizeRemaining":  64244477952,
+        "FileSystemType":  "NTFS",
+        "FileSystemLabel":  "",
+        "DriveLetter":  "E"
+    }
+]
