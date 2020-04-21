@@ -14,5 +14,9 @@ Write-Output "  CWD: $cwd"
 Write-Output "Admin: $is_admin"
 Write-Output " Data: $data_file, Exists: $($data_file.Exists)"
 
+$partitions = Get-Partition | Select-Object -Property DiskNumber, PartitionNumber, Offset, Size, AccessPaths, Guid, GptType, `
+    Type, MbrType, DriveLetter, IsBoot, IsSystem
+$partitions | ConvertTo-Json | Out-File -FilePath "$data_dir\partitions.json" -Encoding ascii
+
 Expand-Archive $data_file.FullName -DestinationPath $data_dir -Force
 Get-ChildItem -Path $data_dir | Out-String

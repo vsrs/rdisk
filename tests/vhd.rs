@@ -2,36 +2,9 @@ use rdisk::mbr;
 use rdisk::prelude::*;
 use rdisk::vhd::{VhdImage, VhdKind};
 use rdisk_shared::AsByteSliceMut;
-use std::path::PathBuf;
 
-fn get_testdata_path() -> Option<PathBuf> {
-    std::env::var("CARGO_MANIFEST_DIR")
-        .ok()
-        .map(|dir| PathBuf::from(dir).join("testdata"))
-}
-
-fn open_test_vhd(name: &str) -> Option<(VhdImage, String)> {
-    get_testdata_path().and_then(|dir| {
-        let path = dir.join(name);
-        let path = path.to_string_lossy().to_string();
-        if let Ok(vhd) = VhdImage::open(path.clone()) {
-            Some((vhd, path))
-        } else {
-            println!("No '{}'. Skipped.", path);
-            None
-        }
-    })
-}
-
-fn open_test_vhd_copy(name: &str) -> Option<(VhdImage, String)> {
-    get_testdata_path().and_then(|dir| {
-        let from = dir.join(name);
-        let copy_name = "copy_".to_string() + name;
-        let _ = std::fs::remove_file(&copy_name);
-        let to = dir.join(&copy_name);
-        std::fs::copy(from, to).ok().and_then(|_| open_test_vhd(&copy_name))
-    })
-}
+mod shared;
+use shared::*;
 
 fn check_no_read_footer(disk: &VhdImage) {
     let size = disk.capacity().unwrap();

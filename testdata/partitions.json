@@ -1,0 +1,100 @@
+[
+    {
+        "DiskNumber":  1,
+        "PartitionNumber":  1,
+        "Offset":  1048576,
+        "Size":  524219938816,
+        "AccessPaths":  [
+                            "C:\\",
+                            "\\\\?\\Volume{736d36a8-0000-0000-0000-100000000000}\\"
+                        ],
+        "Guid":  null,
+        "GptType":  null,
+        "Type":  "IFS",
+        "MbrType":  7,
+        "DriveLetter":  "C",
+        "IsBoot":  true,
+        "IsSystem":  true
+    },
+    {
+        "DiskNumber":  1,
+        "PartitionNumber":  2,
+        "Offset":  524221939712,
+        "Size":  888143872,
+        "AccessPaths":  [
+                            "\\\\?\\Volume{736d36a8-0000-0000-0000-100e7a000000}\\"
+                        ],
+        "Guid":  null,
+        "GptType":  null,
+        "Type":  "Unknown",
+        "MbrType":  39,
+        "DriveLetter":  null,
+        "IsBoot":  false,
+        "IsSystem":  false
+    },
+    {
+        "DiskNumber":  2,
+        "PartitionNumber":  1,
+        "Offset":  368050176,
+        "Size":  255218155520,
+        "AccessPaths":  [
+                            "E:\\",
+                            "\\\\?\\Volume{db6394d2-0000-0000-0000-f01500000000}\\"
+                        ],
+        "Guid":  null,
+        "GptType":  null,
+        "Type":  "IFS",
+        "MbrType":  7,
+        "DriveLetter":  "E",
+        "IsBoot":  false,
+        "IsSystem":  false
+    },
+    {
+        "DiskNumber":  2,
+        "PartitionNumber":  2,
+        "Offset":  255586205696,
+        "Size":  471859200,
+        "AccessPaths":  [
+                            "C:\\temp\\from_e\\",
+                            "\\\\?\\Volume{db6394d2-0000-0000-0000-20823b000000}\\"
+                        ],
+        "Guid":  null,
+        "GptType":  null,
+        "Type":  "XINT13",
+        "MbrType":  14,
+        "DriveLetter":  null,
+        "IsBoot":  false,
+        "IsSystem":  false
+    },
+    {
+        "DiskNumber":  0,
+        "PartitionNumber":  1,
+        "Offset":  17408,
+        "Size":  134217728,
+        "AccessPaths":  null,
+        "Guid":  "{6283cb14-94a4-4847-b5a1-71b426695a67}",
+        "GptType":  "{e3c9e316-0b5c-4db8-817d-f92df00215ae}",
+        "Type":  "Reserved",
+        "MbrType":  null,
+        "DriveLetter":  null,
+        "IsBoot":  false,
+        "IsSystem":  false
+    },
+    {
+        "DiskNumber":  0,
+        "PartitionNumber":  2,
+        "Offset":  135266304,
+        "Size":  3000457232384,
+        "AccessPaths":  [
+                            "D:\\",
+                            "\\\\?\\Volume{99df09a1-d2eb-420b-9bd9-f2886a9aca40}\\"
+                        ],
+        "Guid":  "{99df09a1-d2eb-420b-9bd9-f2886a9aca40}",
+        "GptType":  "{ebd0a0a2-b9e5-4433-87c0-68b6b72699c7}",
+        "Type":  "Basic",
+        "MbrType":  null,
+        "DriveLetter":  "D",
+        "IsBoot":  false,
+        "IsSystem":  false
+    }
+]

@@ -49,10 +49,10 @@ pub(crate) mod platform;
 pub use platform::{File, PhysicalDisk};
 
 pub mod prelude {
-    pub use super::Uuid;
-    pub use super::{Disk, DiskImage, Error, File, Flush, Geometry, ImageExtent, ReadAt, Result, WriteAt};
-    pub use super::{Partition, PartitionInfo, PartitionKind, PartitionedDisk};
+    pub use crate::Uuid;
     pub(crate) use crate::{crc, math, tools, ImageExtentOps};
+    pub use crate::{Disk, DiskImage, Error, File, Flush, Geometry, ImageExtent, ReadAt, Result, WriteAt};
+    pub use crate::{Partition, PartitionInfo, PartitionKind, PartitionedDisk};
     pub(crate) use rdisk_shared::xstd::*;
 }
 

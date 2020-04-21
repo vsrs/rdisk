@@ -1,5 +1,6 @@
 use crate::{gpt, mbr, tools, Disk, Result};
 
+#[cfg_attr(any(feature = "std", test), derive(Debug))]
 pub enum PartitionKind {
     Free,
     Mbr(mbr::PartitionKind),
@@ -26,7 +27,6 @@ impl From<&gpt::PartitionInfo> for PartitionKind {
 }
 
 pub struct PartitionInfo {
-    #[allow(clippy::large_enum_variant)] // for Raw
     pub offset: u64,
     pub length: u64,
     pub kind: PartitionKind,

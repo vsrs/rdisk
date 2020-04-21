@@ -51,6 +51,7 @@ pub enum KnownPartitionKind {
 }
 
 #[derive(Clone, Copy)]
+#[cfg_attr(any(feature = "std", test), derive(Debug))]
 pub enum PartitionKind {
     Known(KnownPartitionKind),
     Unknown(u8),
