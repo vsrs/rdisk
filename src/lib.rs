@@ -24,8 +24,14 @@ pub mod crc;
 pub mod gpt;
 pub mod math;
 pub mod mbr;
+
 pub mod raw;
+pub mod sdi;
+pub mod vdi;
 pub mod vhd;
+pub mod vhdx;
+pub mod vmdk;
+pub mod wim;
 
 mod device_info;
 pub use device_info::*;
