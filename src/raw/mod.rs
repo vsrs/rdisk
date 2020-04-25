@@ -17,10 +17,7 @@ impl ReadAt for RawDiskImage {
 
 impl WriteAt for RawDiskImage {
     fn write_at(&self, offset: u64, data: &[u8]) -> Result<usize> {
-        let _ = offset;
-        let _ = data;
-
-        todo!()
+        self.file.write_at(offset, data)
     }
 }
 
