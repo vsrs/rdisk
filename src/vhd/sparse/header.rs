@@ -98,7 +98,7 @@ impl SparseHeader {
             return Err(Error::from(VhdError::InvalidHeaderChecksum));
         }
 
-        let parent_id = Uuid::from_bytes(header.parent_id);
+        let parent_id = UuidEx::from_be_bytes(header.parent_id);
         let safe_copy = unsafe { &header.parent_unicode_name }; // parent_unicode_name is inside packed struct and requires unsafe block to borrow
         let parent_name = String::from_utf16_lossy(safe_copy).trim_end_matches('\0').to_string();
 

@@ -119,10 +119,8 @@ impl Footer {
             None => return Err(Error::from(VhdError::UnknownVhdType(footer.disk_type))),
         };
 
-        let unique_id = Uuid::from_bytes(footer.unique_id);
-        let fields = unique_id.to_fields_le();
-        let unique_id = Uuid::from_fields(fields.0, fields.1, fields.2, fields.3).unwrap();
-
+        let unique_id = UuidEx::from_be_bytes(footer.unique_id);
+        
         Ok(Footer {
             features: footer.features,
             format_version: footer.format_version,
