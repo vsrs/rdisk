@@ -1,15 +1,15 @@
 use crate::mbr::MasterBootRecord;
 use crate::prelude::*;
 
-#[repr(C, packed)]
-#[derive(Copy, Clone)]
-struct RawUuid(u32, u16, u16, [u8; 8]);
+// #[repr(C, packed)]
+// #[derive(Copy, Clone)]
+// struct RawUuid(u32, u16, u16, [u8; 8]);
 
-impl From<&RawUuid> for Uuid {
-    fn from(raw: &RawUuid) -> Self {
-        Uuid::from_fields(raw.0, raw.1, raw.2, &raw.3).unwrap()
-    }
-}
+// impl From<&RawUuid> for Uuid {
+//     fn from(raw: &RawUuid) -> Self {
+//         Uuid::from_fields(raw.0, raw.1, raw.2, &raw.3).unwrap()
+//     }
+// }
 
 #[repr(C, packed)]
 #[derive(Copy, Clone)]
@@ -23,7 +23,7 @@ struct Header {
     copy_lba: u64,
     first_usable_lba: u64,
     last_usable_lba: u64,
-    disk_id: RawUuid, // [u8; 16],
+    disk_id: Uuid,
     partition_table_lba: u64,
     partition_count: u32,
     partition_entry_size: u32,
@@ -54,8 +54,8 @@ impl crate::AsByteSlice for Header {
 
 #[repr(C, packed)]
 struct RawPartitionRecord {
-    partition_type: RawUuid,
-    partition_id: RawUuid,
+    partition_type: Uuid,
+    partition_id: Uuid,
     first_lba: u64,
     last_lba: u64, // inclusive
     flags: u64,
@@ -92,8 +92,7 @@ fn read_partitions(disk: &impl Disk, header: &Header) -> Result<Vec<PartitionInf
         let mut partitions = Vec::<PartitionInfo>::new();
         for chunk in buffer.chunks_exact(header.partition_entry_size as usize) {
             let raw = &*(chunk.as_ptr() as *const RawPartitionRecord);
-            let id = Uuid::from(&raw.partition_id);
-            if id == Uuid::nil() {
+            if raw.partition_id == Uuid::nil() {
                 break;
             }
 
@@ -101,8 +100,8 @@ fn read_partitions(disk: &impl Disk, header: &Header) -> Result<Vec<PartitionInf
             let length = (raw.last_lba - raw.first_lba + 1) * sector_size as u64;
 
             partitions.push(PartitionInfo {
-                id,
-                kind: Uuid::from(&raw.partition_type),
+                id: raw.partition_id.swap_bytes(),
+                kind: raw.partition_type.swap_bytes(),
                 offset,
                 length,
                 flags: raw.flags,
@@ -150,7 +149,7 @@ impl Layout {
 
         Ok(Layout {
             _protective_mbr: mbr,
-            disk_id: Uuid::from(&header.disk_id),
+            disk_id: header.disk_id,
             partitions,
         })
     }

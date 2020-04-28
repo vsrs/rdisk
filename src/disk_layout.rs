@@ -1,17 +1,18 @@
-use crate::{gpt, mbr, tools, Disk, Result};
+use crate::prelude::*;
+use crate::{mbr, gpt};
 
 #[cfg_attr(any(feature = "std", test), derive(Debug))]
 pub enum PartitionKind {
     Free,
-    Mbr(mbr::PartitionKind),
-    Gpt(uuid::Uuid),
+    Mbr{ kind: mbr::PartitionKind, boot: bool },
+    Gpt{ kind: Uuid, id: Uuid, flags: u64, name: String },
 }
 
 impl From<&mbr::PartitionInfo> for PartitionKind {
     fn from(info: &mbr::PartitionInfo) -> Self {
         match info.kind {
             mbr::PartitionKind::Known(mbr::KnownPartitionKind::Empty) => PartitionKind::Free,
-            _ => PartitionKind::Mbr(info.kind),
+            _ => PartitionKind::Mbr{ kind: info.kind, boot: info.boot_indicator},
         }
     }
 }
@@ -21,7 +22,7 @@ impl From<&gpt::PartitionInfo> for PartitionKind {
         if info.kind == uuid::Uuid::nil() {
             PartitionKind::Free
         } else {
-            PartitionKind::Gpt(info.kind)
+            PartitionKind::Gpt{ kind: info.kind, id: info.id, flags: info.flags, name: info.name.clone() }
         }
     }
 }

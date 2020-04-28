@@ -25,7 +25,7 @@ pub(crate) struct VhdFooterRecord {
     disk_geometry: VhdDiskGeometry,
     disk_type: u32,
     checksum: u32,
-    unique_id: [u8; 16],
+    unique_id: crate::Uuid,
     saved_state: u8,
     padding: [u8; 427],
 }
@@ -44,6 +44,8 @@ impl VhdFooterRecord {
         self.disk_geometry.cylinders = self.disk_geometry.cylinders.swap_bytes();
         self.disk_type = self.disk_type.swap_bytes();
         self.checksum = self.checksum.swap_bytes();
+
+        self.unique_id = self.unique_id.swap_bytes();
     }
 }
 
@@ -118,8 +120,6 @@ impl Footer {
             Some(kind) => kind,
             None => return Err(Error::from(VhdError::UnknownVhdType(footer.disk_type))),
         };
-
-        let unique_id = UuidEx::from_be_bytes(footer.unique_id);
         
         Ok(Footer {
             features: footer.features,
@@ -133,7 +133,7 @@ impl Footer {
             current_size: footer.current_size,
             geometry,
             disk_type,
-            unique_id,
+            unique_id: footer.unique_id,
             saved_state: footer.saved_state,
         })
     }
@@ -149,9 +149,6 @@ impl Footer {
         use num_traits::ToPrimitive;
         let disk_type = self.disk_type.to_u32().unwrap();
 
-        let fields = self.unique_id.to_fields_le();
-        let unique_id = Uuid::from_fields(fields.0, fields.1, fields.2, fields.3).unwrap();
-
         let mut footer = StructBuffer::<VhdFooterRecord>::zeroed();
         footer.cookie_id = COOKIE_ID;
         footer.features = self.features;
@@ -165,7 +162,7 @@ impl Footer {
         footer.current_size = self.current_size;
         footer.disk_geometry = disk_geometry;
         footer.disk_type = disk_type;
-        footer.unique_id = *unique_id.as_bytes();
+        footer.unique_id = self.unique_id;
         footer.saved_state = self.saved_state;
 
         let checksum = super::calc_header_bytes_checksum(&footer);

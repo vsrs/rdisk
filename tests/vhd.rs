@@ -27,7 +27,7 @@ fn check_no_read_footer(disk: &VhdImage) {
     }
 }
 
-fn check_layout(disk: VhdImage) {
+fn check_mbr_layout(disk: VhdImage) {
     let disk = PartitionedDisk::new(disk).unwrap();
 
     assert_eq!(1, disk.layout().partitions().count());
@@ -37,7 +37,7 @@ fn check_layout(disk: VhdImage) {
     assert_eq!(65536, partition.offset());
     assert_eq!(2031616, partition.length());
     match partition.kind() {
-        PartitionKind::Mbr(mbr::PartitionKind::Known(mbr::KnownPartitionKind::Fat16BLBA)) => (),
+        PartitionKind::Mbr{ kind: mbr::PartitionKind::Known(mbr::KnownPartitionKind::Fat16BLBA), .. } => (),
         _ => assert!(false),
     }
 }
@@ -51,7 +51,7 @@ fn fixed_vhd_read() {
         assert_eq!(full_path, files.next().unwrap());
         assert_eq!(None, files.next()); // should be no more files
 
-        check_layout(disk);
+        check_mbr_layout(disk);
     }
 }
 
@@ -72,7 +72,30 @@ fn dynamic_vhd_read() {
         let id = format!("{:X}", disk.id());
         assert_eq!("ED51C3E2-93A7-4FF2-B7C4-D0B6407D49B0", id);
 
-        check_layout(disk);
+        check_mbr_layout(disk);
+    }
+}
+
+#[test]
+fn vhd_gpt_read() {
+    if let Some((disk, _full_path)) = open_test_vhd("vhd_dynamic_small_gpt.vhd") {
+        let disk = PartitionedDisk::new(disk).unwrap();
+
+        assert_eq!(1, disk.layout().partitions().count());
+        assert_eq!(1, disk.partitions().count());
+    
+        let partition = disk.partitions().nth(0).unwrap();
+        assert_eq!(65536, partition.offset());
+        assert_eq!(1048576, partition.length());
+        match partition.kind() {
+            PartitionKind::Gpt{ kind, id, name, flags} => {
+                assert_eq!(kind, &Uuid::parse_str("ebd0a0a2-b9e5-4433-87c0-68b6b72699c7").unwrap());
+                assert_eq!(id, &Uuid::parse_str("e0f1caa6-ff5a-434e-81c8-66baf88798bb").unwrap());
+                assert_eq!(name, "Basic data partition");
+                assert_eq!(flags, &0x8000_0000_0000_0000);
+            },
+            _ => assert!(false),
+        }
     }
 }
 
@@ -108,7 +131,7 @@ fn dynamic_vhd_write() {
             .unwrap();
         assert_eq!(temp, template);
 
-        check_layout(disk);
+        check_mbr_layout(disk);
     }
 }
 

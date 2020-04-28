@@ -22,7 +22,7 @@ pub(crate) struct VhdSparseHeaderRecord {
     max_table_entries: u32,
     block_size: u32,
     checksum: u32,
-    parent_id: [u8; 16],
+    parent_id: Uuid,
     parent_time_stamp: u32,
     reserved: u32,
     parent_unicode_name: [u16; 256],
@@ -41,6 +41,8 @@ impl VhdSparseHeaderRecord {
         self.block_size = self.block_size.swap_bytes();
         self.checksum = self.checksum.swap_bytes();
         self.parent_time_stamp = self.parent_time_stamp.swap_bytes();
+
+        self.parent_id = self.parent_id.swap_bytes();
 
         for entry in &mut self.parent_locators {
             entry.platform_code = entry.platform_code.swap_bytes();
@@ -98,7 +100,6 @@ impl SparseHeader {
             return Err(Error::from(VhdError::InvalidHeaderChecksum));
         }
 
-        let parent_id = UuidEx::from_be_bytes(header.parent_id);
         let safe_copy = unsafe { &header.parent_unicode_name }; // parent_unicode_name is inside packed struct and requires unsafe block to borrow
         let parent_name = String::from_utf16_lossy(safe_copy).trim_end_matches('\0').to_string();
 
@@ -108,7 +109,7 @@ impl SparseHeader {
             header_version: header.header_version,
             max_table_entries: header.max_table_entries,
             block_size: header.block_size,
-            parent_id,
+            parent_id: header.parent_id,
             _parent_time_stamp: header.parent_time_stamp,
             parent_name,
             _parent_locators: header.parent_locators,
@@ -123,6 +124,8 @@ impl SparseHeader {
         header.header_version = self.header_version;
         header.max_table_entries = self.max_table_entries;
         header.block_size = self.block_size;
+
+        // TODO: differencing
 
         let checksum = super::calc_header_bytes_checksum(&header);
         header.checksum = checksum;

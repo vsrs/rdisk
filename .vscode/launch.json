@@ -20,7 +20,7 @@
                 "moduleLoad": false,
             },
             "sourceFileMap": {
-                "/rustc/b8cedc00407a4c56a3bda1ed605c6fc166655447": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+                "/rustc/4fb7144ed159f94491249e86d5bbd033b5d60550": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
               },
         },
         {
@@ -39,7 +39,7 @@
                 "moduleLoad": false,
             },
             "sourceFileMap": {
-                "/rustc/b8cedc00407a4c56a3bda1ed605c6fc166655447": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+                "/rustc/4fb7144ed159f94491249e86d5bbd033b5d60550": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
               },
         },
         {
@@ -61,14 +61,14 @@
                 "moduleLoad": false,
             },
             "sourceFileMap": {
-                "/rustc/b8cedc00407a4c56a3bda1ed605c6fc166655447": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+                "/rustc/4fb7144ed159f94491249e86d5bbd033b5d60550": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
               },
         },
         {
             "name": "VHD tests",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\target\\debug\\vhd-93d30b6390c68932.exe",
+            "program": "${workspaceFolder}\\target\\debug\\vhd-88feeb48ac334b1c.exe",
             "args": ["--test-threads=1", "--nocapture"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -83,7 +83,7 @@
                 "moduleLoad": false,
             },
             "sourceFileMap": {
-                "/rustc/b8cedc00407a4c56a3bda1ed605c6fc166655447": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+                "/rustc/4fb7144ed159f94491249e86d5bbd033b5d60550": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
               },
         },        
         {
@@ -104,7 +104,7 @@
                 "moduleLoad": false,
             },
             "sourceFileMap": {
-                "/rustc/b8cedc00407a4c56a3bda1ed605c6fc166655447": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
+                "/rustc/4fb7144ed159f94491249e86d5bbd033b5d60550": "${env:USERPROFILE}\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\src\\rust"
               },
         }
     ]
